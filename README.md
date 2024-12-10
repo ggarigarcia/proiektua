@@ -24,3 +24,4 @@ Programak honela funtzionatzen du:
 ## 2. Planifikatzailea (Scheduler/Dispatcher)
 
 ## 3. Memoriaren kudeatzailea
+
