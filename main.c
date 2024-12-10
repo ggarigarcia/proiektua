@@ -2,11 +2,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
-#include "1zatia.h"
+#include "main.h"
 
 /* ALDAGAI GLOBALAK */
 pthread_mutex_t mutex1;
 pthread_cond_t cond1,cond2;
+
+//TO DO: timer_sched - sched MUTEX + COND??
 
 int done = 0;
 
@@ -21,6 +23,7 @@ void *erloju(void *arg)
     while(1)
     {
         erloju_tick++;
+        //check hariak()
         if (erloju_tick == maiztasuna )
         {
             pthread_mutex_lock(&mutex1);
@@ -91,6 +94,20 @@ void *timer_proc(void *arg)
     }
 }
 
+void *scheduler(void *arg)
+{
+    //CPUan zegoen pcb kendu
+        //pcb-aren kontextua gorde
+        //TO DO: espezifikatu gehiago pcb-aren tratamendua
+
+    //hartu pcb HEAD (HEAD hurrengoari pasa)
+
+    //pcb-a exekutatu erlojuaren maiztasuna kontuan izanez. NOLA??
+
+
+
+}
+
 /* MAIN */
 int main(int argc, char *argv[])
 {
@@ -110,11 +127,28 @@ int main(int argc, char *argv[])
 
     pthread_t p1,p2,p3;
     timerArg argClock = {atoi(argv[1])};
-    timerArg argSched = {atoi(argv[2])};
-    timerArg argProc = {atoi(argv[3])};
+    timerArg argT_sched = {atoi(argv[2])};
+    timerArg argT_proc = {atoi(argv[3])};
+ 
+    /* argv[4] = cpu kop, argv[5] = core kop, argv[6] = hari kop*/
+    int i,j,k;
+    for(i = 0; i < argv[4];i++)
+    {
+        for(j = 0; j < argv[5]; j++)
+        {
+            for(k = 0; k < argv[6]; k++)
+            {
+                //malloc();
+            }
+        }
+    }
+
+
+    //timerArg argScheduler = {atoi(argv[n])}
     pthread_create(&p1,NULL,erloju,(void*)&argClock);
-    pthread_create(&p1,NULL,timer_sched,(void*)&argSched);
-    pthread_create(&p1,NULL,timer_proc,(void*)&argProc);
+    pthread_create(&p1,NULL,timer_sched,(void*)&argT_sched);
+    pthread_create(&p1,NULL,timer_proc,(void*)&argT_proc);
+    //pthread_create(&p4,NULL,scheduler,(void*)&argsched)
 
     /* kernela amaitu */
     pthread_join(p1,NULL); printf("clock amaitua\n");
