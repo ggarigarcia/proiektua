@@ -1,8 +1,8 @@
 CC = gcc
 FLAGS = -o
-SRC = 1zatia.c
-TARGET = 1zatia
-OUTPUT = 1zatia
+SRC = main.c
+TARGET = main
+OUTPUT = main
 
 #defektuz
 all: $(TARGET)

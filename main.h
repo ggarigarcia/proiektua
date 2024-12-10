@@ -1,13 +1,14 @@
 #define TENP_KOP 2
-#define CORE_KOP_MAX 1000
 
+/* TIMER */
 typedef struct{
     int maiztasuna;
 } timerArg;
 
+/* PCB */
 typedef struct{
     int id;
-    pcb *hurrengoa;
+    struct pcb *hurrengoa;
 } pcb;
 
 typedef struct{
@@ -16,20 +17,15 @@ typedef struct{
     pcb *unekoa;
 } pcb_ilara;
 
-//TO DO: CPU, CORE, THREAD
+/* MACHINE */
 typedef struct{
     int id;
-    pcb *uneko_pcb; //pcb-a atzitzeko, gero aldatzen joan
+    pcb *uneko_pcb;
 } hari;
 
 typedef struct{
-    hari *hariak;
-} core;
-
-typedef struct{
-    core *coreak;
-} cpu;
-
-typedef struct{
-    cpu *cpuak;
+    int cpu_kop;
+    int core_cop;
+    int hari_kop;
+    hari *hariak; 
 } machine;

@@ -8,8 +8,6 @@
 pthread_mutex_t mutex1;
 pthread_cond_t cond1,cond2;
 
-//TO DO: timer_sched - sched MUTEX + COND??
-
 int done = 0;
 
 /* FUNTZIOAK */
@@ -33,7 +31,6 @@ void *erloju(void *arg)
             printf("Abisu %d \n",kont);
             kont++;
 
-            
             while(done < TENP_KOP)
             {
                 pthread_cond_wait(&cond1,&mutex1);
@@ -94,19 +91,24 @@ void *timer_proc(void *arg)
     }
 }
 
-void *scheduler(void *arg)
+// void *scheduler(void *arg)
+// {
+//     //CPUan zegoen pcb kendu
+//         //pcb-aren kontextua gorde
+//         //TO DO: espezifikatu gehiago pcb-aren tratamendua
+
+//     //hartu pcb HEAD (HEAD hurrengoari pasa)
+
+//     //pcb-a exekutatu erlojuaren maiztasuna kontuan izanez. NOLA??
+
+
+
+// }
+
+/* void makina_hasieratu(machine makina, int cpu_kop, int core_kop, int hari_kop)
 {
-    //CPUan zegoen pcb kendu
-        //pcb-aren kontextua gorde
-        //TO DO: espezifikatu gehiago pcb-aren tratamendua
 
-    //hartu pcb HEAD (HEAD hurrengoari pasa)
-
-    //pcb-a exekutatu erlojuaren maiztasuna kontuan izanez. NOLA??
-
-
-
-}
+} */
 
 /* MAIN */
 int main(int argc, char *argv[])
@@ -115,7 +117,7 @@ int main(int argc, char *argv[])
     if(argc < 4)
     {
         printf("%s <clock_maizt> <sched_maizt> <proc_maizt>\n",argv[0]);
-        return 1;
+        return 2;
     }
 
     /* kernela martxan jarri */
@@ -129,22 +131,15 @@ int main(int argc, char *argv[])
     timerArg argClock = {atoi(argv[1])};
     timerArg argT_sched = {atoi(argv[2])};
     timerArg argT_proc = {atoi(argv[3])};
- 
-    /* argv[4] = cpu kop, argv[5] = core kop, argv[6] = hari kop*/
-    int i,j,k;
-    for(i = 0; i < argv[4];i++)
-    {
-        for(j = 0; j < argv[5]; j++)
-        {
-            for(k = 0; k < argv[6]; k++)
-            {
-                //malloc();
-            }
-        }
-    }
-
-
     //timerArg argScheduler = {atoi(argv[n])}
+ 
+    //int cpu_kop = atoi(argv[4]);
+    //int core_kop = atoi(argv[5]);
+    //int hari_kop = atoi(argv[6]);
+
+    //machine makina;
+    //makina_hasieratu(&makina,cpu_kop,core_kop,hari_kop);
+
     pthread_create(&p1,NULL,erloju,(void*)&argClock);
     pthread_create(&p1,NULL,timer_sched,(void*)&argT_sched);
     pthread_create(&p1,NULL,timer_proc,(void*)&argT_proc);
@@ -153,7 +148,8 @@ int main(int argc, char *argv[])
     /* kernela amaitu */
     pthread_join(p1,NULL); printf("clock amaitua\n");
     pthread_join(p2,NULL); printf("timer_sched amaitua\n");
-    pthread_join(p3,NULL); printf("timer_proc amaitua");
+    pthread_join(p3,NULL); printf("timer_proc amaitua\n");
+    //pthread_join(p4,NULL); printf("scheduler amaituta\n");
 
     pthread_mutex_destroy(&mutex1);
     pthread_cond_destroy(&cond1);
