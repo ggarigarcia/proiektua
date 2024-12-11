@@ -1,20 +1,26 @@
 CC = gcc
-FLAGS = -o
-SRC = main.c
-TARGET = main
-OUTPUT = main
+CFLAGS = -Iinclude -g #include direktorioa espezifikatu, konpilazio informazioa lortu
+SRC = $(wildcard src/*.c) #src/scheduler.c src/prozesu-sortzaile.c
+OBJDIR = obj
+OBJ = $(SRC:src/%.c=$(OBJDIR)/%.o) #src-ko fitxategi guztiak .o-ra bihurtu obj karpetan
+BIN = bin/kernel
 
-#defektuz
-all: $(TARGET)
+#default
+all: $(OBJDIR) $(BIN)
 
-#exekutagarria lortu
-$(TARGET): $(SRC)
-	$(CC) $(SRC) $(FLAGS) $(OUTPUT)
+$(BIN): $(OBJ) #bin birkonpilatu egingo da OBJ lista aldatzen bada:
+	$(CC) $(OBJ) -o $(BIN)
 
-#exekutagarria martxan jarri
-run: $(TARGET)
-	./$(TARGET) 10 1 2
+$(OBJDIR)/%.o: src/%.c #.o bakoitza bere .c-a aldatzean birkonpilatu
+	$(CC) $(CFLAGS) -c $< -o $@
 
-clean: 
-	rm $(OUTPUT)
+run: $(BIN)
+	./$(BIN) 10 1 2 1 2 2
 
+debug: $(BIN)
+	gdb ./$(BIN) 10 1 2 1 2 2
+
+clean:
+	rm -f $(OBJDIR)/*.o
+	rm -f $(BIN)
+	rm src/*.exe
