@@ -25,7 +25,7 @@ typedef struct{
 
 typedef struct{
     int cpu_kop;
-    int core_cop;
+    int core_kop;
     int hari_kop;
     hari *hariak; 
 } machine;
