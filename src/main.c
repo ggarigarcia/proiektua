@@ -10,7 +10,7 @@
 pthread_mutex_t mutex1;
 pthread_cond_t cond1,cond2;
 
-int done = 0;
+int done,kont;
 
 /* FUNTZIOAK */
 void *erloju(void *arg)
@@ -18,7 +18,7 @@ void *erloju(void *arg)
     timerArg* t_arg = (timerArg*) arg;
     int maiztasuna = t_arg->maiztasuna;
     int erloju_tick = 0;
-    int kont = 0;
+    kont = 0;
 
     while(1)
     {
@@ -75,7 +75,7 @@ void makina_bukatu(machine *makina)
 int main(int argc, char *argv[])
 {
     /* argumentu egiaztapena */
-    if(argc < 4)
+    if(argc < 7)
     {
         printf("%s <clock_maizt> <sched_maizt> <proc_maizt>\n",argv[0]);
         return 1;

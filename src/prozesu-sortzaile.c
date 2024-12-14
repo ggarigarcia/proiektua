@@ -7,7 +7,7 @@
 extern pthread_mutex_t mutex1;
 extern pthread_cond_t cond1;
 extern pthread_cond_t cond2;
-extern int done;
+extern int done,kont;
 
 void *timer_proc(void *arg)
 {
@@ -19,6 +19,12 @@ void *timer_proc(void *arg)
 
     while(1)
     {
+        if(kont >= 10)
+        {
+            pthread_mutex_unlock(&mutex1);
+            return NULL;
+        }
+        
         done ++;
 
         proc_tick++;
@@ -32,6 +38,7 @@ void *timer_proc(void *arg)
             
         }
         pthread_cond_signal(&cond1);
-        pthread_cond_wait(&cond2,&mutex1); 
+        
+        pthread_cond_wait(&cond2,&mutex1);
     }
 }

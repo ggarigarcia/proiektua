@@ -1,8 +1,8 @@
 CC = gcc
-CFLAGS = -Iinclude -g #include direktorioa espezifikatu, konpilazio informazioa lortu
-SRC = $(wildcard src/*.c) #src/scheduler.c src/prozesu-sortzaile.c
+CFLAGS = -g #include direktorioa espezifikatu, konpilazio informazioa lortu
+SRC = $(wildcard src/*.c) 
 OBJDIR = obj
-OBJ = $(SRC:src/%.c=$(OBJDIR)/%.o) #src-ko fitxategi guztiak .o-ra bihurtu obj karpetan
+OBJ = $(SRC:src/%.c=$(OBJDIR)/%.o) #.c fitxategien .o bertsioak
 BIN = bin/kernel
 
 #default
@@ -23,4 +23,3 @@ debug: $(BIN)
 clean:
 	rm -f $(OBJDIR)/*.o
 	rm -f $(BIN)
-	rm src/*.exe

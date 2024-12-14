@@ -4,7 +4,7 @@
             "name": "C/C++: gcc.exe build and debug active file",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${fileDirname}\\${fileBasenameNoExtension}.exe",
+            "program": "${workspaceFolder}\\bin\\${fileBasenameNoExtension}.exe",
             "args": ["10","1","2","1","2","2"],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
