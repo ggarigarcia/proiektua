@@ -56,7 +56,7 @@ int makina_hasieratu(machine *makina,int cpu_kop, int core_kop, int hari_kop)
     makina->cpu_kop = cpu_kop;
     makina->core_kop = core_kop;
     makina->hari_kop = hari_kop;
-    makina->hariak = malloc(cpu_kop * core_kop * hari_kop);
+    makina->hariak = malloc(cpu_kop * core_kop * hari_kop * sizeof(hari));
 
     //hari bakoitza hasieratu
     int hari_total = cpu_kop * core_kop * hari_kop;
@@ -71,7 +71,10 @@ int makina_hasieratu(machine *makina,int cpu_kop, int core_kop, int hari_kop)
 
 void makina_bukatu(machine *makina)
 {
-    free(makina->hariak);
+    if (makina->hariak != NULL) {
+        free(makina->hariak);
+        makina->hariak = NULL;
+    }
 }
 
 /* MAIN */

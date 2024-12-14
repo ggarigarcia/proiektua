@@ -9,7 +9,7 @@
                 "-g",
                 "${workspaceFolder}\\src\\*.c",
                 "-o",
-                "${workspaceFolder}\\bin\\${fileBasenameNoExtension}.exe"
+                "${workspaceFolder}\\bin\\kernel.exe"
             ],
             "options": {
                 "cwd": "${fileDirname}"
