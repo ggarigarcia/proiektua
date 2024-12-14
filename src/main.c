@@ -10,7 +10,8 @@
 pthread_mutex_t mutex1;
 pthread_cond_t cond1,cond2;
 
-int done,kont;
+int done;
+int kont; //test-ak egiteko
 
 /* FUNTZIOAK */
 void *erloju(void *arg)
@@ -23,15 +24,19 @@ void *erloju(void *arg)
     while(1)
     {
         erloju_tick++;
-        //check hariak()
-        if (erloju_tick == maiztasuna )
+        //check hariak() //pcb-ei exekuzio denbora kendu
+        if (erloju_tick == maiztasuna)
         {
             pthread_mutex_lock(&mutex1);
 
             erloju_tick = 0;
 
             printf("Abisu %d \n",kont);
-            kont++;
+            if(kont == 10){
+                pthread_mutex_unlock(&mutex1);
+                return NULL;
+            }
+            
 
             while(done < TENP_KOP)
             {
@@ -41,9 +46,7 @@ void *erloju(void *arg)
             pthread_cond_broadcast(&cond2);
             pthread_mutex_unlock(&mutex1);
 
-            if(kont == 10){
-                return NULL;
-            }
+            kont++;
         }
     }
 }
@@ -107,11 +110,12 @@ int main(int argc, char *argv[])
     //pthread_create(&p4,NULL,scheduler,(void*)&argsched)
 
     /* kernela amaitu */
-    pthread_join(p1,NULL); printf("clock amaitua\n");
-    pthread_join(p2,NULL); printf("timer_sched amaitua\n");
-    pthread_join(p3,NULL); printf("timer_proc amaitua\n");
+    pthread_join(p1,NULL); printf("--clock amaitua\n");
+    pthread_join(p2,NULL); printf("--timer_sched amaitua\n");
+    pthread_join(p3,NULL); printf("--timer_proc amaitua\n");
     //pthread_join(p4,NULL); printf("scheduler amaituta\n");
 
+    printf("Sistema itzaltzen...\n");
     makina_bukatu(&makina);
 
     pthread_mutex_destroy(&mutex1);

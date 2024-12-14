@@ -9,6 +9,10 @@ extern pthread_cond_t cond1;
 extern pthread_cond_t cond2;
 extern int done,kont;
 
+pthread_mutex_t mutex_proc;
+pthread_cond_t cond_proc1;
+pthread_cond_t cond_proc2;
+
 void *timer_proc(void *arg)
 {
     pthread_mutex_lock(&mutex1);
@@ -33,7 +37,7 @@ void *timer_proc(void *arg)
             proc_tick = 0;
 
             printf("Prozesu sortzaile\n");
-            //prozesu_sortzaile mutex,cond
+            
             
             
         }
@@ -41,4 +45,9 @@ void *timer_proc(void *arg)
         
         pthread_cond_wait(&cond2,&mutex1);
     }
+}
+
+void *prozesu_sortzaile(void * arg)
+{
+    
 }
