@@ -83,7 +83,7 @@ int main(int argc, char *argv[])
     /* argumentu egiaztapena */
     if(argc < 7)
     {
-        printf("%s <clock_maizt> <sched_maizt> <proc_maizt>\n",argv[0]);
+        printf("%s <clock_maizt> <sched_maizt> <proc_maizt> <cpu_kop> <core_kop> <hari_kop>\n",argv[0]);
         return 1;
     }
 

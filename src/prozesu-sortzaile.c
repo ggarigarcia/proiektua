@@ -13,6 +13,12 @@ pthread_mutex_t mutex_proc;
 pthread_cond_t cond_proc1;
 pthread_cond_t cond_proc2;
 
+int prozesu_sortzaile()
+{
+    printf("--prozesu berri bat\n");
+    return 0;
+}
+
 void *timer_proc(void *arg)
 {
     pthread_mutex_lock(&mutex1);
@@ -37,7 +43,7 @@ void *timer_proc(void *arg)
             proc_tick = 0;
 
             printf("Prozesu sortzaile\n");
-            
+            prozesu_sortzaile();
             
             
         }
@@ -47,7 +53,3 @@ void *timer_proc(void *arg)
     }
 }
 
-void *prozesu_sortzaile(void * arg)
-{
-    
-}
