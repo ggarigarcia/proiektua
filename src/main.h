@@ -1,3 +1,6 @@
+#ifndef MAIN
+#define MAIN
+
 #define TENP_KOP 2
 
 /* TIMER */
@@ -6,6 +9,13 @@ typedef struct{
 } timerArg;
 
 /* PCB */
+
+/* PCB EGOERAK */
+#define NEW 0
+#define READY 1
+#define RUNNING 2
+#define WAITING 3
+#define EXIT 4
 typedef struct{
     int id;
     int egoera;
@@ -39,3 +49,4 @@ void *erloju(void *arg);
 int makina_hasieratu(machine *makina,int cpu_kop, int core_kop, int hari_kop);
 int makina_bukatu(machine *makina);
 
+#endif //MAIN
