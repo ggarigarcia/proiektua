@@ -24,7 +24,7 @@ void *erloju(void *arg)
     while(1)
     {
         erloju_tick++;
-        //check hariak() //pcb-ei exekuzio denbora kendu
+        //TODO prozesuei exekuzio denbora kendu
         if (erloju_tick == maiztasuna)
         {
             pthread_mutex_lock(&mutex1);
@@ -69,12 +69,14 @@ int makina_hasieratu(machine *makina,int cpu_kop, int core_kop, int hari_kop)
     return 0;
 }
 
-void makina_bukatu(machine *makina)
+int makina_bukatu(machine *makina)
 {
     if (makina->hariak != NULL) {
         free(makina->hariak);
         makina->hariak = NULL;
     }
+
+    return 0;
 }
 
 /* MAIN */
