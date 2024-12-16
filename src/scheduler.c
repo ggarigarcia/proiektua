@@ -8,13 +8,20 @@ extern pthread_mutex_t mutex1;
 extern pthread_cond_t cond1;
 extern pthread_cond_t cond2;
 extern int done,kont;
+//extern int clock_done; //utzi erlojuari exekutatzen lehenengo
+extern machine *makina;
 
 void *timer_sched(void *arg)
 {
+    /* while(clock_done == 1)
+    {
+        ; //utzi erlojuari exekutatzen lehenengo
+    } */
+
     pthread_mutex_lock(&mutex1);
 
-    timerArg* t_arg = (timerArg*) arg;
-    int maiztasuna = t_arg->maiztasuna;
+    timerArgs* t_args = (timerArgs*) arg;
+    int maiztasuna = t_args->maiztasuna;
     int sched_tick = 0;
 
     while(1)
