@@ -47,6 +47,7 @@ int haria_esleitu(pcb *pcb)
 
 int pcb_gehitu(pcb_ilara *ilara, pcb *pcb)
 {
+    //TODO politikak hemen sartu??
     if (ilara->head == NULL) {
         ilara->head = pcb;
         ilara->tail = pcb;
@@ -63,28 +64,47 @@ int pcb_gehitu(pcb_ilara *ilara, pcb *pcb)
 
 int pcb_ezabatu(pcb_ilara *ilara, pcb *mypcb)
 {
-    uint aurkitua = 0;
-
-    pcb *uneko = malloc(sizeof(pcb)); pcb *aurreko = malloc(sizeof(pcb));
-    if(uneko == NULL || aurreko == NULL){
-        return 1; //malloc errorea
-    }
-
-    uneko = ilara->head;
-    while(uneko != NULL)
+    int ret = 0;
+    if(ilara->head->info->id == mypcb->info->id) //head kasua
     {
+        ilara->head = ilara->head->hurrengoa;
 
-        if(uneko->info == mypcb->info->id) //aurkitua
-        {
-            //TODO ezabatu
+    } else if(ilara->head->hurrengoa == NULL){ //uneko eta aurreko-en esleipen motagatik kasu hau kontuan eduki
 
+        ret = 1;
+    } else{
+
+        uint aurkitua = 0;
+
+        pcb *oraingo = malloc(sizeof(pcb)); pcb *hurrengo = malloc(sizeof(pcb));
+        if(oraingo == NULL || hurrengo == NULL){
+            ret = 2; //malloc errorea
         }
-    }
 
-    if(!aurkitua){
-        printf("Errorea (2): ezin izan da PCB-a ezabatu. Ez da aurkitu");
-        return 2;
+        oraingo = ilara->head;
+        hurrengo = ilara->head->hurrengoa;
+        while(hurrengo != NULL)
+        {
+            if(hurrengo->info->id == mypcb->info->id) //aurkitua
+            {
+                oraingo->hurrengoa = hurrengo->hurrengoa;
+                aurkitua = 1;
+                break;
+            }
+            oraingo = oraingo->hurrengoa;
+            hurrengo = hurrengo->hurrengoa;
+        }
+
+        if(!aurkitua){
+            printf("Errorea (2): ezin izan da PCB-a ezabatu. Ez da aurkitu");
+            ret = 2;
+        }
+
+        free(oraingo); free(hurrengo);
+        return ret;
     }
+    
+    
 
     return 0;
 }
