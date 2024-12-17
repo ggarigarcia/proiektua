@@ -7,11 +7,11 @@
 extern pthread_mutex_t mutex1;
 extern pthread_cond_t cond1;
 extern pthread_cond_t cond2;
-extern int done,kont;
-//extern int clock_done; //utzi erlojuari exekutatzen lehenengo
+extern uint done, kont;
+extern uint clock_done; //utzi erlojuari exekutatzen lehenengo
 extern machine *makina;
 
-int pcb_kont;
+uint pcb_kont;
 
 pthread_mutex_t mutex_proc;
 pthread_cond_t cond_proc1;
@@ -20,13 +20,26 @@ pthread_cond_t cond_proc2;
 /* FUNTZIOAK */
 int haria_esleitu(pcb *pcb)
 {
-    if(makina->hari_aktibo_kop <= makina->hari_kop) //lekua dago => gehitu
+    //aurkitu lekua harimap-ean
+    uint i = 0;
+    while(i < makina->hari_kop)
     {
-        makina->hariak[makina->hari_aktibo_kop].uneko_pcb = pcb;
-        makina->hari_aktibo_kop++;
+        if(makina->harimap[i] == 0) //libre
+        {
+            makina->hariak[i].uneko_pcb = pcb;
+            makina->harimap[i] = 1;
+            break;
+        }
+        i++;
     }
-    
-    return 0;
+
+    if(i == makina->hari_kop) //beteta
+    {
+        printf("Hari guztiak okupatuta daude\n");
+        return 1;
+    } else{
+        return 0;
+    }
 }
 
 int pcb_gehitu(pcb_ilara *ilara, pcb *pcb)
@@ -39,7 +52,16 @@ int pcb_gehitu(pcb_ilara *ilara, pcb *pcb)
         ilara->tail = pcb;
     }
 
+    //TODO CHANGE: ilarara sartu baina hari batera EZ
     haria_esleitu(pcb);
+
+    return 0;
+}
+
+int pcb_ezabatu(pcb_ilara *ilara, pcb *pcb)
+{
+    //while not aurkitua loop
+        //if aurkitua ezabatu (linked list moduan)
 
     return 0;
 }
@@ -83,6 +105,9 @@ int ezabatu_ilara(pcb_ilara *ilara)
         free(current);
         current = next;
     }
+
+    free(ilara);
+    ilara = NULL;
     
     return 0;
 }
@@ -103,30 +128,27 @@ int erakutsi_ilara(pcb_ilara *ilara)
 
 void *timer_proc(void *arg)
 {
-    /* while(clock_done == 1)
-    {
-        ; //utzi erlojuari exekutatzen lehenengo
-    } */
-
     pthread_mutex_lock(&mutex1);
 
     timerArgs* t_args = (timerArgs*) arg;
-    int maiztasuna = t_args->maiztasuna;
-    int proc_tick = 0;
+    uint maiztasuna = t_args->maiztasuna;
+    uint proc_tick = 0;
 
     pcb_kont = 0;
-    //ilara nagusia hasieratu
-    pcb_ilara *pcb_ilara_nagusia = malloc(sizeof(pcb_ilara));
+    //ilarak hasieratu
+    pcb_ilara_nagusia = malloc(sizeof(pcb_ilara));
+    finished_ilara = malloc(sizeof(pcb_ilara));
     pcb_ilara_nagusia->head = NULL;
     pcb_ilara_nagusia->tail = NULL;
 
     while(1)
     {
-        if(kont >= 10)
+        if(kont >= TTL)
         {
             pthread_mutex_unlock(&mutex1);
             erakutsi_ilara(pcb_ilara_nagusia);
             ezabatu_ilara(pcb_ilara_nagusia);
+            ezabatu_ilara(finished_ilara);
 
             return NULL;
         }

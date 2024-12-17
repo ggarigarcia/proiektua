@@ -7,60 +7,72 @@
 #include "prozesu-sortzaile.h"
 
 /* ALDAGAI GLOBALAK */
+
 pthread_mutex_t mutex1;
 pthread_cond_t cond1,cond2;
 
-int done;
-int kont; //programa exekuzio kopuru batera mugatu
-int clock_done;
+uint done;
+uint kont; //programa exekuzio kopuru batera mugatu
+uint clock_done = 1;
 
 machine *makina;
 
 /* FUNTZIOAK */
 int hariak_eguneratu()
 {
-    int *uneko_exek_denb;
-    if(makina->hari_aktibo_kop > 0){ //EZ dakigu noiz sortuko den lehenengo PCB-a
-        for(int i = 0; i < makina->hari_aktibo_kop; i++)
+    uint *uneko_exek_denb = NULL;
+
+    uint i = 0;
+    while(i < makina->hari_kop)
+    {
+        if(makina->harimap[i] == 1) //okupatuta
         {
             uneko_exek_denb = &(makina->hariak[i].uneko_pcb->info->exek_denb);
-            if (uneko_exek_denb > 0) //TODO tratatu exekuzio denbora, negatibo ematen du
+            if(*uneko_exek_denb > 0)
             {
                 (*uneko_exek_denb)--;
+            } else{
+                pcb_gehitu(finished_ilara,makina->hariak[i].uneko_pcb);
+                pcb_ezabatu(pcb_ilara_nagusia,makina->hariak[i].uneko_pcb); //TODO
+                makina->hariak[i].uneko_pcb = NULL;
+                makina->harimap[i] = 0;
+                printf("WARNING: %d PCB-a atera da %d haritik\n", makina->hariak[i].uneko_pcb->info->id, i);
             }
-            
-            printf("Hari %d, exekuzio denbora: %d\n", i, *uneko_exek_denb);
-            
         }
-    }
+    }  
     
     return 0;
 }
 
-int makina_hasieratu(int cpu_kop, int core_kop, int hari_kop)
+int makina_hasieratu(uint cpu_kop, uint core_kop, uint hari_kop)
 {
     makina = malloc(sizeof(machine));
     if (makina == NULL)
     {
-        return 1;
+        return 1; //malloc errorea
     }
     
     makina->cpu_kop = cpu_kop;
     makina->core_kop = core_kop;
     makina->hari_kop = hari_kop;
-    makina->hari_aktibo_kop = 0;
+    makina->total_hari_kop = cpu_kop * core_kop * hari_kop;
+    makina->harimap = malloc(makina->total_hari_kop * sizeof(uint)); //bitmap
+    if(makina->harimap == NULL)
+    {
+        return 1; //malloc errorea
+    }
     makina->hariak = malloc(cpu_kop * core_kop * hari_kop * sizeof(hari));
     if(makina->hariak == NULL)
     {
-        return 1;
+        return 1; //malloc errorea
     }
 
-    //hari bakoitza hasieratu
-    int hari_total = cpu_kop * core_kop * hari_kop;
-    for(int i = 0; i < hari_total; i++)
+    //bitmapa + hari bakoitza hasieratu
+    for(int i = 0; i < makina->total_hari_kop; i++)
     {
         makina->hariak[i].id = i;
         makina->hariak[i].uneko_pcb = NULL; 
+        makina->harimap[i] = 0;
     }
 
     return 0;
@@ -79,17 +91,18 @@ int makina_bukatu()
 }
 
 void *erloju(void *arg)
-{
+{    
     timerArgs* t_args = (timerArgs*) arg;
-    int maiztasuna = t_args->maiztasuna;
-    int erloju_tick = 0;
+    uint maiztasuna = t_args->maiztasuna;
+    uint erloju_tick = 0;
     kont = 0;
-    clock_done = 1;
 
     while(1)
     {
         erloju_tick++;
-        //TODO prozesuei exekuzio denbora kendu
+        if(kont != 0){
+            hariak_eguneratu(); //PCB-en exekuzio denbora gutxitu
+        }
         if (erloju_tick == maiztasuna)
         {
             pthread_mutex_lock(&mutex1);
@@ -98,12 +111,10 @@ void *erloju(void *arg)
 
             kont++;
             printf("Abisu %d \n",kont);
-            if(kont == 10){ //KERNELA AMAITU
+            if(kont == TTL){ //KERNELA AMAITU
                 pthread_mutex_unlock(&mutex1);
                 return NULL;
             }
-
-            hariak_eguneratu();
             
             while(done < TENP_KOP)
             {
@@ -139,9 +150,9 @@ int main(int argc, char *argv[])
     timerArgs argT_proc = {atoi(argv[3])};
     //timerArgs argScheduler = {atoi(argv[n])}
  
-    int cpu_kop = atoi(argv[4]);
-    int core_kop = atoi(argv[5]);
-    int hari_kop = atoi(argv[6]);
+    uint cpu_kop = atoi(argv[4]);
+    uint core_kop = atoi(argv[5]);
+    uint hari_kop = atoi(argv[6]);
 
     if(makina_hasieratu(cpu_kop,core_kop,hari_kop) != 0)
     {
@@ -149,6 +160,7 @@ int main(int argc, char *argv[])
         return 1;
     }
 
+    clock_done = 1;
     pthread_create(&p1,NULL,erloju,(void*)&argClock);
     pthread_create(&p2,NULL,timer_sched,(void*)&argT_sched);
     pthread_create(&p3,NULL,timer_proc,(void*)&argT_proc);

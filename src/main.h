@@ -5,30 +5,34 @@
 #include "prozesu-sortzaile.h"
 
 #define TENP_KOP 2
+#define TTL 20 //kernela amaitzeko abisu kopurua
+
+typedef unsigned int uint; //0-tik 4294967295-erako balioak
 
 /* TIMER */
 typedef struct{
-    int maiztasuna;
+    uint maiztasuna;
 } timerArgs;
 
 /* MACHINE */
 typedef struct{
-    int id;
+    uint id;
     pcb *uneko_pcb;
 } hari;
 
 typedef struct{
-    int cpu_kop;
-    int core_kop;
-    int hari_kop;
+    uint cpu_kop; //argv[4]
+    uint core_kop; //argv[5]
+    uint hari_kop; //argv[6]
     /* --- */
-    int hari_aktibo_kop;
+    uint total_hari_kop; //cpu_kop * core_kop * hari_kop
+    uint *harimap; //harien bitmapa
     hari *hariak; 
 } machine;
 
 
 int hariak_eguneratu();
-int makina_hasieratu(int cpu_kop, int core_kop, int hari_kop);
+int makina_hasieratu(uint cpu_kop, uint core_kop, uint hari_kop);
 int makina_bukatu();
 void *erloju(void *arg);
 
