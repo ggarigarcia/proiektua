@@ -44,5 +44,9 @@ void *timer_sched(void *arg)
 }
 
 void *scheduler(void *arg){
+    //hari bat izan behar du mutexak erabiltzeko, aldi berean bi dei egiten badira soilik bakarra hartzeko etab.
+}
 
+void* disptacher(void *arg){
+    
 }

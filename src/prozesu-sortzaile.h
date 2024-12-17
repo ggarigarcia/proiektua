@@ -27,10 +27,6 @@ typedef struct{
     //int politika; //0: FIFO, 1: SJF, 2: RR
 } pcb_ilara;
 
-//TODO #ifnef jarri EDO .c fitategian sortu eta export egin
-pcb_ilara *pcb_ilara_nagusia;
-pcb_ilara *finished_ilara;
-
 /* FUNTZIOAK */
 int pcb_gehitu(pcb_ilara *ilara, pcb *pcb);
 int pcb_ezabatu(pcb_ilara *ilara, pcb *pcb); //TODO

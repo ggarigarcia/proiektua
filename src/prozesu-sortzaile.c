@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
+#include <prozesu-sortzaile.h>
 #include "scheduler.h"
 #include "main.h"
 
@@ -11,7 +12,9 @@ extern uint done, kont;
 extern uint clock_done; //utzi erlojuari exekutatzen lehenengo
 extern machine *makina;
 
-uint pcb_kont;
+uint pcb_kont; //TODO zertarako hau??
+pcb_ilara *pcb_ilara_nagusia;
+pcb_ilara *finished_ilara;
 
 pthread_mutex_t mutex_proc;
 pthread_cond_t cond_proc1;
@@ -58,10 +61,30 @@ int pcb_gehitu(pcb_ilara *ilara, pcb *pcb)
     return 0;
 }
 
-int pcb_ezabatu(pcb_ilara *ilara, pcb *pcb)
+int pcb_ezabatu(pcb_ilara *ilara, pcb *mypcb)
 {
-    //while not aurkitua loop
-        //if aurkitua ezabatu (linked list moduan)
+    uint aurkitua = 0;
+
+    pcb *uneko = malloc(sizeof(pcb)); pcb *aurreko = malloc(sizeof(pcb));
+    if(uneko == NULL || aurreko == NULL){
+        return 1; //malloc errorea
+    }
+
+    uneko = ilara->head;
+    while(uneko != NULL)
+    {
+
+        if(uneko->info == mypcb->info->id) //aurkitua
+        {
+            //TODO ezabatu
+
+        }
+    }
+
+    if(!aurkitua){
+        printf("Errorea (2): ezin izan da PCB-a ezabatu. Ez da aurkitu");
+        return 2;
+    }
 
     return 0;
 }

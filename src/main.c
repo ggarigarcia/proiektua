@@ -7,6 +7,8 @@
 #include "prozesu-sortzaile.h"
 
 /* ALDAGAI GLOBALAK */
+extern pcb_ilara *pcb_ilara_nagusia;
+extern pcb_ilara *finished_ilara;
 
 pthread_mutex_t mutex1;
 pthread_cond_t cond1,cond2;
@@ -28,10 +30,11 @@ int hariak_eguneratu()
         if(makina->harimap[i] == 1) //okupatuta
         {
             uneko_exek_denb = &(makina->hariak[i].uneko_pcb->info->exek_denb);
-            if(*uneko_exek_denb > 0)
+            if(*uneko_exek_denb > 0) //jarraitu
             {
                 (*uneko_exek_denb)--;
-            } else{
+                
+            } else{ //BOTA (dispatcher??)
                 pcb_gehitu(finished_ilara,makina->hariak[i].uneko_pcb);
                 pcb_ezabatu(pcb_ilara_nagusia,makina->hariak[i].uneko_pcb); //TODO
                 makina->hariak[i].uneko_pcb = NULL;
