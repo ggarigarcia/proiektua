@@ -1,52 +1,39 @@
 #ifndef MAIN
 #define MAIN
 
+#include "scheduler.h"
+#include "prozesu-sortzaile.h"
+
 #define TENP_KOP 2
+#define TTL 20 //kernela amaitzeko abisu kopurua
+
+typedef unsigned int uint; //0-tik 4294967295-erako balioak
 
 /* TIMER */
 typedef struct{
-    int maiztasuna;
-} timerArg;
-
-/* PCB */
-
-/* PCB EGOERAK */
-#define NEW 0
-#define READY 1
-#define RUNNING 2
-#define WAITING 3
-#define EXIT 4
-typedef struct{
-    int id;
-    int egoera;
-    int prioritatea;
-} pcb_info;
-typedef struct{
-    pcb_info *info;
-    struct pcb *hurrengoa;
-} pcb;
-
-typedef struct{
-    pcb *head;
-    pcb *tail;
-    //pcb *unekoa;
-} pcb_ilara;
+    uint maiztasuna;
+} timerArgs;
 
 /* MACHINE */
 typedef struct{
-    int id;
+    uint id;
     pcb *uneko_pcb;
 } hari;
 
 typedef struct{
-    int cpu_kop;
-    int core_kop;
-    int hari_kop;
+    uint cpu_kop; //argv[4]
+    uint core_kop; //argv[5]
+    uint hari_kop; //argv[6]
+    /* --- */
+    uint total_hari_kop; //cpu_kop * core_kop * hari_kop
+    uint *harimap; //harien bitmapa
     hari *hariak; 
 } machine;
 
+
+int hariak_eguneratu(); //TODO scheduler.h??
+int makina_hasieratu(uint cpu_kop, uint core_kop, uint hari_kop);
+int makina_bukatu();
 void *erloju(void *arg);
-int makina_hasieratu(machine *makina,int cpu_kop, int core_kop, int hari_kop);
-int makina_bukatu(machine *makina);
 
 #endif //MAIN

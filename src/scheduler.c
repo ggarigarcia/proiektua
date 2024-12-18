@@ -7,19 +7,20 @@
 extern pthread_mutex_t mutex1;
 extern pthread_cond_t cond1;
 extern pthread_cond_t cond2;
-extern int done,kont;
+extern uint done,kont;
+extern machine *makina;
 
 void *timer_sched(void *arg)
 {
     pthread_mutex_lock(&mutex1);
 
-    timerArg* t_arg = (timerArg*) arg;
-    int maiztasuna = t_arg->maiztasuna;
-    int sched_tick = 0;
+    timerArgs* t_args = (timerArgs*) arg;
+    uint maiztasuna = t_args->maiztasuna;
+    uint sched_tick = 0;
 
     while(1)
     {
-        if(kont >= 10)
+        if(kont >= TTL)
         {
             pthread_mutex_unlock(&mutex1);
             return NULL;
@@ -42,5 +43,9 @@ void *timer_sched(void *arg)
 }
 
 void *scheduler(void *arg){
+    //pthread bat mutexekin, aldi berean bi dei egiten badira (erloju,timer_sched) soilik bakarra hartzeko
+}
 
+void* disptacher(void *arg){
+    
 }
