@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
-#include <prozesu-sortzaile.h>
+#include "prozesu-sortzaile.h"
 #include "scheduler.h"
 #include "main.h"
 
@@ -9,10 +9,9 @@ extern pthread_mutex_t mutex1;
 extern pthread_cond_t cond1;
 extern pthread_cond_t cond2;
 extern uint done, kont;
-extern uint clock_done; //utzi erlojuari exekutatzen lehenengo
 extern machine *makina;
 
-uint pcb_kont; //TODO zertarako hau??
+uint pcb_kont; //PCB-en id-ak esleitzeko
 pcb_ilara *pcb_ilara_nagusia;
 pcb_ilara *finished_ilara;
 
@@ -45,102 +44,120 @@ int haria_esleitu(pcb *pcb)
     }
 }
 
-int pcb_gehitu(pcb_ilara *ilara, pcb *pcb)
+int pcb_gehitu(pcb *pcb, pcb_ilara *ilara)
 {
-    //TODO politikak hemen sartu??
+    //add pcb to the end of the list
     if (ilara->head == NULL) {
         ilara->head = pcb;
         ilara->tail = pcb;
     } else {
-        ilara->tail->hurrengoa = (struct pcb *) pcb;
+        ilara->tail->hurrengoa = (struct pcb *) pcb; 
         ilara->tail = pcb;
     }
 
-    //TODO CHANGE: ilarara sartu baina hari batera EZ
-    haria_esleitu(pcb);
+    //haria_esleitu(pcb);
 
     return 0;
 }
 
-int pcb_ezabatu(pcb_ilara *ilara, pcb *mypcb)
+/* 
+//PCB-a guztiz ezabatu ilaratik eta memoriatik
+int pcb_guztiz_ezabatu(pcb *mypcb, pcb_ilara *ilara)
 {
-    int ret = 0;
-    if(ilara->head->info->id == mypcb->info->id) //head kasua
-    {
-        ilara->head = ilara->head->hurrengoa;
-
-    } else if(ilara->head->hurrengoa == NULL){ //uneko eta aurreko-en esleipen motagatik kasu hau kontuan eduki
-
-        ret = 1;
-    } else{
-
-        uint aurkitua = 0;
-
-        pcb *oraingo = malloc(sizeof(pcb)); pcb *hurrengo = malloc(sizeof(pcb));
-        if(oraingo == NULL || hurrengo == NULL){
-            ret = 2; //malloc errorea
-        }
-
-        oraingo = ilara->head;
-        hurrengo = ilara->head->hurrengoa;
-        while(hurrengo != NULL)
-        {
-            if(hurrengo->info->id == mypcb->info->id) //aurkitua
-            {
-                oraingo->hurrengoa = hurrengo->hurrengoa;
-                aurkitua = 1;
-                break;
+    pcb *current = ilara->head;
+    pcb *prev = NULL;
+    while (current != NULL) {
+        if (current->info->id == mypcb->info->id) { //AURKITUA
+            if (prev == NULL) {  //head kasua
+                ilara->head = (pcb *) current->hurrengoa;
+            } else { //not head kasua
+                prev->hurrengoa = current->hurrengoa;
             }
-            oraingo = oraingo->hurrengoa;
-            hurrengo = hurrengo->hurrengoa;
+            if (current == ilara->tail) { //tail kasua
+                ilara->tail = prev;
+            }
+            //ezabatu guztiz PCB-a
+            free(current->info);
+            free(current);
+            return 0;
         }
-
-        if(!aurkitua){
-            printf("Errorea (2): ezin izan da PCB-a ezabatu. Ez da aurkitu");
-            ret = 2;
-        }
-
-        free(oraingo); free(hurrengo);
-        return ret;
+        prev = current;
+        current = (pcb *) current->hurrengoa;
     }
-    
-    
 
-    return 0;
+    return 1; //ez aurkitua
+} */
+
+/**
+ * @brief PCB-a ilara batetik ezabatzen du, baina ez memoriatik
+ */
+int pcb_ezabatu(pcb *mypcb, pcb_ilara *ilara)
+{
+    pcb *current = ilara->head;
+    pcb *prev = NULL;
+    while (current != NULL) {
+        if (current->info->id == mypcb->info->id) { //AURKITUA
+            if (prev == NULL) {  //head kasua
+                ilara->head = (pcb *) current->hurrengoa;
+            } else { //not head kasua
+                prev->hurrengoa = current->hurrengoa;
+            }
+            if (current == ilara->tail) { //tail kasua
+                ilara->tail = prev;
+            }
+            //ez ezabatu memoriatik
+            return 0;
+        }
+        prev = current;
+        current = (pcb *) current->hurrengoa;
+    }
+
+    return 1; //ez aurkitua
 }
 
-int pcb_sortu(pcb_ilara *ilara)
+//TODO CHECK. Se supone PCB-a geldi geratzen dela eta atzipenak aldatzen direla ezta??
+int pcb_mugitu(pcb *pcb, pcb_ilara *ilara1, pcb_ilara *ilara2)
 {
-    pcb *pcb_berri = malloc(sizeof(pcb));
+    //gehitu ilara2-ra
+    pcb_gehitu(pcb,ilara2);
+    //ezabatu ilara1-etik (baina ez memoriatik)
+    pcb_ezabatu(pcb,ilara1);
+}
+
+int pcb_sortu(pcb **pcb_berri)
+{
+    //pcb
+    *pcb_berri = malloc(sizeof(pcb));
     if (pcb_berri == NULL) {
-        perror("Malloc arazoa: pcb_berri sortzean");
-        return -1;
+        printf("Malloc arazoa: pcb_berri sortzean\n");
+        return 1;
     }
 
-    pcb_berri->info = malloc(sizeof(pcb_info));
-    if (pcb_berri->info == NULL) {
-        perror("Malloc arazoa: pcb_berri->info sortzean");
-        free(pcb_berri);
-        return -1;
+    //pcb->info
+    (*pcb_berri)->info = malloc(sizeof(pcb_info));
+    if ((*pcb_berri)->info == NULL) {
+        printf("Malloc arazoa: pcb_berri->info sortzean\n");
+        free(*pcb_berri);
+        return 1;
     }
 
-    pcb_berri->info->id = pcb_kont;
-    pcb_berri->info->egoera = 0; //NEW
-    pcb_berri->info->prioritatea = 0;
-    pcb_berri->info->exek_denb = (rand() % 10) + 1;
-    pcb_berri->hurrengoa = NULL;
-
-    pcb_gehitu(ilara,pcb_berri);
+    //gainontzeko aldagaiak
+    (*pcb_berri)->info->id = pcb_kont;
+    pcb_kont++;
+    (*pcb_berri)->info->egoera = 0; //TODO parametro gisa
+    (*pcb_berri)->info->prioritatea = 0; //TODO parametro gisa
+    (*pcb_berri)->info->exek_denb = (rand() % 10) + 1; //TODO parametro gisa
+    (*pcb_berri)->hurrengoa = NULL;
 
     printf("--prozesu berri bat sortu da: id = %d\n",pcb_kont);
 
     return 0;
 }
 
-int ezabatu_ilara(pcb_ilara *ilara)
+int ilara_ezabatu(pcb_ilara **ilara)
 {
-    //free all elements of the linked list
-    pcb *current = ilara->head;
+    //elementu guztiak ezabatu
+    pcb *current = (*ilara)->head;
     pcb *next;
     while (current != NULL) {
         next = (pcb *) current->hurrengoa;
@@ -149,13 +166,27 @@ int ezabatu_ilara(pcb_ilara *ilara)
         current = next;
     }
 
-    free(ilara);
-    ilara = NULL;
+    free(*ilara);
+    *ilara = NULL;
     
     return 0;
 }
 
-int erakutsi_ilara(pcb_ilara *ilara)
+int ilara_hasieratu(pcb_ilara **ilara)
+{
+    *ilara = malloc(sizeof(pcb_ilara));
+    if (*ilara == NULL) {
+        printf("Malloc arazoa: ilara sortzean\n");
+        return 1;
+    }
+
+    (*ilara)->head = NULL;
+    (*ilara)->tail = NULL;
+
+    return 0;
+}
+
+int ilara_erakutsi(pcb_ilara *ilara)
 {
     pcb *current = ilara->head;
 
@@ -178,20 +209,19 @@ void *timer_proc(void *arg)
     uint proc_tick = 0;
 
     pcb_kont = 0;
-    //ilarak hasieratu
-    pcb_ilara_nagusia = malloc(sizeof(pcb_ilara));
-    finished_ilara = malloc(sizeof(pcb_ilara));
-    pcb_ilara_nagusia->head = NULL;
-    pcb_ilara_nagusia->tail = NULL;
+    //TODO metodo bati deitu ilarak hasieratzeko
+    ilara_hasieratu(&pcb_ilara_nagusia);
+    ilara_hasieratu(&finished_ilara);
 
     while(1)
     {
         if(kont >= TTL)
         {
             pthread_mutex_unlock(&mutex1);
-            erakutsi_ilara(pcb_ilara_nagusia);
-            ezabatu_ilara(pcb_ilara_nagusia);
-            ezabatu_ilara(finished_ilara);
+            printf("Amaitutako prozesuak:\n");
+            ilara_erakutsi(finished_ilara);
+            ilara_ezabatu(&pcb_ilara_nagusia);
+            ilara_ezabatu(&finished_ilara);
 
             return NULL;
         }
@@ -204,8 +234,10 @@ void *timer_proc(void *arg)
             proc_tick = 0;
 
             printf("Prozesu sortzaile\n");
-            pcb_kont++;
-            pcb_sortu(pcb_ilara_nagusia);
+            pcb *pcb_berri = NULL;
+            pcb_sortu(&pcb_berri); //punteroaren HELBIDEA pasa, bestela balioak EZ dira aldatuko
+            pcb_gehitu(pcb_berri,pcb_ilara_nagusia);
+            haria_esleitu(pcb_berri);
             
             
         }

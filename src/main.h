@@ -31,7 +31,7 @@ typedef struct{
 } machine;
 
 
-int hariak_eguneratu();
+int hariak_eguneratu(); //TODO scheduler.h??
 int makina_hasieratu(uint cpu_kop, uint core_kop, uint hari_kop);
 int makina_bukatu();
 void *erloju(void *arg);

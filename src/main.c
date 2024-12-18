@@ -14,8 +14,7 @@ pthread_mutex_t mutex1;
 pthread_cond_t cond1,cond2;
 
 uint done;
-uint kont; //programa exekuzio kopuru batera mugatu
-uint clock_done = 1;
+uint kont; //TTL-rekin lotuta
 
 machine *makina;
 
@@ -25,23 +24,23 @@ int hariak_eguneratu()
     uint *uneko_exek_denb = NULL;
 
     uint i = 0;
-    while(i < makina->hari_kop)
+    while(i < makina->hari_kop) //harimap guztia zeharkatu
     {
         if(makina->harimap[i] == 1) //okupatuta
         {
             uneko_exek_denb = &(makina->hariak[i].uneko_pcb->info->exek_denb);
-            if(*uneko_exek_denb > 0) //jarraitu
+            if(*uneko_exek_denb > 0) //jarraitu exek_denb kentzen
             {
                 (*uneko_exek_denb)--;
                 
             } else{ //BOTA (dispatcher??)
-                pcb_gehitu(finished_ilara,makina->hariak[i].uneko_pcb);
-                pcb_ezabatu(pcb_ilara_nagusia,makina->hariak[i].uneko_pcb); //TODO
-                makina->hariak[i].uneko_pcb = NULL;
+                pcb_mugitu(makina->hariak[i].uneko_pcb,pcb_ilara_nagusia,finished_ilara);
+                makina->hariak[i].uneko_pcb = NULL; //punteroa modifikatzen du, ez PCB-a
                 makina->harimap[i] = 0;
-                printf("WARNING: %d PCB-a atera da %d haritik\n", makina->hariak[i].uneko_pcb->info->id, i);
+                printf("WARNING: %d haria libratu egin da\n",i);
             }
         }
+        i++;
     }  
     
     return 0;
@@ -89,6 +88,7 @@ int makina_bukatu()
     }
 
     free(makina);
+    makina = NULL;
 
     return 0;
 }
@@ -109,7 +109,6 @@ void *erloju(void *arg)
         if (erloju_tick == maiztasuna)
         {
             pthread_mutex_lock(&mutex1);
-            clock_done = 0;
             erloju_tick = 0;
 
             kont++;
@@ -163,7 +162,6 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    clock_done = 1;
     pthread_create(&p1,NULL,erloju,(void*)&argClock);
     pthread_create(&p2,NULL,timer_sched,(void*)&argT_sched);
     pthread_create(&p3,NULL,timer_proc,(void*)&argT_proc);

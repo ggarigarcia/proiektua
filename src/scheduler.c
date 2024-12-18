@@ -8,7 +8,6 @@ extern pthread_mutex_t mutex1;
 extern pthread_cond_t cond1;
 extern pthread_cond_t cond2;
 extern uint done,kont;
-extern uint clock_done; //utzi erlojuari exekutatzen lehenengo
 extern machine *makina;
 
 void *timer_sched(void *arg)
@@ -44,7 +43,7 @@ void *timer_sched(void *arg)
 }
 
 void *scheduler(void *arg){
-    //hari bat izan behar du mutexak erabiltzeko, aldi berean bi dei egiten badira soilik bakarra hartzeko etab.
+    //pthread bat mutexekin, aldi berean bi dei egiten badira (erloju,timer_sched) soilik bakarra hartzeko
 }
 
 void* disptacher(void *arg){
