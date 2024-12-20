@@ -5,7 +5,7 @@
 #include "prozesu-sortzaile.h"
 
 #define TENP_KOP 2
-#define TTL 20 //kernela amaitzeko abisu kopurua
+#define TTL 10 //kernela amaitzeko abisu kopurua
 
 typedef unsigned int uint; //0-tik 4294967295-erako balioak
 
