@@ -1,14 +1,18 @@
 #ifndef PROZESU_SORTZAILE
 #define PROZESU_SORTZAILE
 
-/* PCB EGOERAK */
+
+
+/* EGITURAK */
+
+/* PCB */
+
+/* PCB egoerak */
 #define NEW 0
 #define READY 1
 #define RUNNING 2
 #define WAITING 3
 #define EXIT 4
-
-/* EGITURAK */
 typedef struct{
     int id;
     int egoera; //0: NEW, 1: READY, 2: RUNNING, 3: WAITING, 4: EXIT
@@ -20,10 +24,16 @@ typedef struct pcb{
     struct pcb *hurrengoa;
 } pcb;
 
+/* ILARA */
+
+/* Ilara politikak */
+#define FCFS 0
+#define SJF 1
+//#define RR 2
 typedef struct{
     pcb *head;
     pcb *tail;
-    //uint politika; //0: FIFO, 1: SJF, 2: RR
+    //int politika; //0: FIFO, 1: SJF, 2: RR
 } pcb_ilara;
 
 /* FUNTZIOAK */
