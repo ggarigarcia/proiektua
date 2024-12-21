@@ -8,11 +8,11 @@
 extern pthread_mutex_t mutex1;
 extern pthread_cond_t cond1;
 extern pthread_cond_t cond2;
-extern uint done, kont;
+extern uint done, abisu;
 extern machine *makina;
 extern int politika;
 
-uint pcb_kont; //PCB-en id-ak esleitzeko
+uint pcb_abisu; //PCB-en id-ak esleitzeko
 pcb_ilara *pcb_ilara_nagusia;
 pcb_ilara *finished_ilara;
 
@@ -112,14 +112,14 @@ int pcb_sortu(pcb **pcb_berri)
     }
 
     //gainontzeko aldagaiak
-    (*pcb_berri)->info->id = pcb_kont;
-    pcb_kont++;
+    (*pcb_berri)->info->id = pcb_abisu;
+    pcb_abisu++;
     (*pcb_berri)->info->egoera = 0; //TODO parametro gisa
     (*pcb_berri)->info->prioritatea = 0; //TODO parametro gisa
     (*pcb_berri)->info->exek_denb = (rand() % 10) + 1; //TODO parametro gisa
     (*pcb_berri)->hurrengoa = NULL;
 
-    printf("(PROC) --prozesu berri bat sortu da: id = %d\n",pcb_kont);
+    printf("-(PROC) prozesu berri bat sortu da: id = %d\n",pcb_abisu);
 
     return 0;
 }
@@ -161,10 +161,9 @@ int ilara_erakutsi(pcb_ilara *ilara)
 {
     pcb *current = ilara->head;
 
-    printf("(PROC) PCB ilara:\n");
     while(current != NULL)
     {
-        printf("(PROC) -PCB %d\n",current->info->id);
+        printf(" -(PROC) PCB %d\n",current->info->id);
         current = (pcb *) current->hurrengoa;
     }
 
@@ -173,23 +172,23 @@ int ilara_erakutsi(pcb_ilara *ilara)
 
 void *timer_proc(void *arg)
 {
-    pthread_mutex_lock(&mutex1);
-
     timerArgs* t_args = (timerArgs*) arg;
     uint maiztasuna = t_args->maiztasuna;
     uint proc_tick = 0;
 
-    pcb_kont = 0;
+    pthread_mutex_lock(&mutex1);
+
+    pcb_abisu = 0;
     //TODO metodo bati deitu ilarak hasieratzeko
     ilara_hasieratu(&pcb_ilara_nagusia);
     ilara_hasieratu(&finished_ilara);
 
     while(1)
     {
-        if(kont >= TTL)
+        if(abisu >= TTL)
         {
             pthread_mutex_unlock(&mutex1);
-            printf("(PROC) Amaitutako prozesuak:\n");
+            printf("-(PROC) Amaitutako prozesuak:\n");
             ilara_erakutsi(finished_ilara);
             ilara_ezabatu(&pcb_ilara_nagusia);
             ilara_ezabatu(&finished_ilara);

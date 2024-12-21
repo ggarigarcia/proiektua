@@ -6,6 +6,5 @@
 int ordenatu_ilara(pcb_ilara *ilara, int politika); //scheduler
 
 void *timer_sched(void *arg);
-void *scheduler(void *arg);
 
 #endif //SCHEDULER

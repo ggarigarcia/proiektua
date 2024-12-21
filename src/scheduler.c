@@ -8,7 +8,7 @@
 extern pthread_mutex_t mutex1;
 extern pthread_cond_t cond1;
 extern pthread_cond_t cond2;
-extern uint done,kont;
+extern uint done,abisu;
 extern machine *makina;
 
 int politika;
@@ -64,7 +64,7 @@ int shortest_job_first(pcb_ilara *ilara)
 
 
 //TODO 99% mutex bat jarri, ilararen atzipen esklusiboa bermatzeko
-int scheduler(pcb_ilara *ilara, int politika)
+int ordenatu_ilara(pcb_ilara *ilara, int politika)
 {
     switch(politika)
     {
@@ -88,15 +88,14 @@ void* disptacher(void *arg){
 
 void *timer_sched(void *arg)
 {
-    pthread_mutex_lock(&mutex1);
-
     timerArgs* t_args = (timerArgs*) arg;
     uint maiztasuna = t_args->maiztasuna;
     uint sched_tick = 0;
 
+    pthread_mutex_lock(&mutex1);
     while(1)
     {
-        if(kont >= TTL)
+        if(abisu >= TTL)
         {
             pthread_mutex_unlock(&mutex1);
             return NULL;

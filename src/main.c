@@ -1,6 +1,7 @@
 /* INCLUDEAK */
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <pthread.h>
 #include "main.h"
 #include "scheduler.h"
@@ -15,7 +16,7 @@ pthread_mutex_t mutex1;
 pthread_cond_t cond1,cond2;
 
 uint done;
-uint kont; //TTL-rekin lotuta
+uint abisu; //TTL-rekin lotuta
 
 machine *makina;
 
@@ -38,7 +39,7 @@ int hariak_eguneratu()
                 pcb_mugitu(makina->hariak[i].uneko_pcb, pcb_ilara_nagusia, finished_ilara);
                 makina->hariak[i].uneko_pcb = NULL; //punteroa modifikatzen du, ez PCB-a
                 makina->harimap[i] = 0;
-                printf("(main) %d haria libratu egin da\n",i);
+                printf("-(MAIN) %d haria libratu egin da\n",i);
             }
         }
         i++;
@@ -98,25 +99,26 @@ int makina_bukatu()
 
 void *erloju(void *arg)
 {    
+    pthread_mutex_lock(&mutex1);
     timerArgs* t_args = (timerArgs*) arg;
     uint maiztasuna = t_args->maiztasuna;
     uint erloju_tick = 0;
-    kont = 0;
+    abisu = 0;
 
     while(1)
     {
         erloju_tick++;
-        if(kont != 0){
+        if(abisu != 0){
             hariak_eguneratu(); //PCB-en exekuzio denbora gutxitu
         }
         if (erloju_tick == maiztasuna)
         {
-            pthread_mutex_lock(&mutex1);
+            //pthread_mutex_lock(&mutex1);
             erloju_tick = 0;
 
-            kont++;
-            printf("(main) Abisu %d \n",kont);
-            if(kont == TTL){ //KERNELA AMAITU
+            abisu++;
+            printf("(MAIN) Abisu %d \n",abisu);  
+            if(abisu == TTL){ //KERNELA AMAITU
                 pthread_mutex_unlock(&mutex1);
                 return NULL;
             }
@@ -127,7 +129,7 @@ void *erloju(void *arg)
             }
             done = 0;
             pthread_cond_broadcast(&cond2);
-            pthread_mutex_unlock(&mutex1);
+            //pthread_mutex_unlock(&mutex1);
         }
     }
 }
@@ -143,7 +145,7 @@ int main(int argc, char *argv[])
     }
 
     /* KERNELA MARTXAN JARRI */
-    printf("(MAIN) Sistema martxan jartzen...\n");
+    printf("Sistema martxan jartzen...\n");
 
     pthread_mutex_init(&mutex1,NULL);
     pthread_cond_init(&cond1,NULL);
@@ -165,24 +167,25 @@ int main(int argc, char *argv[])
     }
 
     pthread_create(&p1,NULL,erloju,(void*)&argClock);
+    //sleep(1);
     pthread_create(&p2,NULL,timer_sched,(void*)&argT_sched);
     pthread_create(&p3,NULL,timer_proc,(void*)&argT_proc);
 
     /* ----------------------------------------------- */
 
     /* KERNELA AMAITU */
-    pthread_join(p1,NULL); printf("(MAIN) --clock amaitua\n");
-    pthread_join(p2,NULL); printf("(MAIN) --timer_sched amaitua\n");
-    pthread_join(p3,NULL); printf("(MAIN) --timer_proc amaitua\n");
+    pthread_join(p1,NULL); printf("-(MAIN) clock amaitua\n");
+    pthread_join(p2,NULL); printf("-(MAIN) timer_sched amaitua\n");
+    pthread_join(p3,NULL); printf("-(MAIN) timer_proc amaitua\n");
 
-    printf("(MAIN) Sistema itzaltzen...\n");
+    printf("Sistema itzaltzen...\n");
     makina_bukatu();
 
     pthread_mutex_destroy(&mutex1);
     pthread_cond_destroy(&cond1);
     pthread_cond_destroy(&cond2);
 
-    printf("(MAIN) Sistema behar bezala amaitu da\n");
+    printf("Sistema behar bezala amaitu da\n");
 
     return 0;
 }
