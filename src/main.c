@@ -159,6 +159,7 @@ int main(int argc, char *argv[])
     uint cpu_kop = atoi(argv[4]);
     uint core_kop = atoi(argv[5]);
     uint hari_kop = atoi(argv[6]);
+    politika = atoi(argv[7]);
 
     if(makina_hasieratu(cpu_kop,core_kop,hari_kop) != 0)
     {
@@ -166,17 +167,20 @@ int main(int argc, char *argv[])
         return 1;
     }
 
+    ilara_hasieratu(&pcb_ilara_nagusia);
+    ilara_hasieratu(&finished_ilara);
+
     pthread_create(&p1,NULL,erloju,(void*)&argClock);
-    //sleep(1);
+    usleep(100);
     pthread_create(&p2,NULL,timer_sched,(void*)&argT_sched);
     pthread_create(&p3,NULL,timer_proc,(void*)&argT_proc);
 
     /* ----------------------------------------------- */
 
     /* KERNELA AMAITU */
-    pthread_join(p1,NULL); printf("-(MAIN) clock amaitua\n");
-    pthread_join(p2,NULL); printf("-(MAIN) timer_sched amaitua\n");
-    pthread_join(p3,NULL); printf("-(MAIN) timer_proc amaitua\n");
+    pthread_join(p1,NULL);
+    pthread_join(p2,NULL); 
+    pthread_join(p3,NULL); 
 
     printf("Sistema itzaltzen...\n");
     makina_bukatu();

@@ -3,7 +3,7 @@
 
 #include "prozesu-sortzaile.h"
 
-int ordenatu_ilara(pcb_ilara *ilara, int politika); //scheduler
+int ilara_ordenatu(pcb_ilara *ilara); //schedulerra, como tal
 
 void *timer_sched(void *arg);
 

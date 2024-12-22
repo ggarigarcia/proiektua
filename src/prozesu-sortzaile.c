@@ -12,7 +12,7 @@ extern uint done, abisu;
 extern machine *makina;
 extern int politika;
 
-uint pcb_abisu; //PCB-en id-ak esleitzeko
+uint pcb_kont; //PCB-en id-ak esleitzeko
 pcb_ilara *pcb_ilara_nagusia;
 pcb_ilara *finished_ilara;
 
@@ -56,7 +56,7 @@ int pcb_gehitu(pcb *pcb, pcb_ilara *ilara)
         ilara->tail = pcb;
     }
 
-    //haria_esleitu(pcb);
+    pcb->hurrengoa = NULL;
 
     return 0;
 }
@@ -112,14 +112,16 @@ int pcb_sortu(pcb **pcb_berri)
     }
 
     //gainontzeko aldagaiak
-    (*pcb_berri)->info->id = pcb_abisu;
-    pcb_abisu++;
-    (*pcb_berri)->info->egoera = 0; //TODO parametro gisa
-    (*pcb_berri)->info->prioritatea = 0; //TODO parametro gisa
-    (*pcb_berri)->info->exek_denb = (rand() % 10) + 1; //TODO parametro gisa
+    (*pcb_berri)->info->id = pcb_kont;
+    pcb_kont++;
+
+    //TODO parametro gisa aldagai hauek??
+    (*pcb_berri)->info->egoera = 0; 
+    (*pcb_berri)->info->prioritatea = 0; 
+    (*pcb_berri)->info->exek_denb = (10*TTL) - (10*pcb_kont); //TODO aldatu 
     (*pcb_berri)->hurrengoa = NULL;
 
-    printf("-(PROC) prozesu berri bat sortu da: id = %d\n",pcb_abisu);
+    printf("-(PROC) prozesu berri bat sortu da: id = %d\n",pcb_kont-1);
 
     return 0;
 }
@@ -178,20 +180,22 @@ void *timer_proc(void *arg)
 
     pthread_mutex_lock(&mutex1);
 
-    pcb_abisu = 0;
-    //TODO metodo bati deitu ilarak hasieratzeko
-    ilara_hasieratu(&pcb_ilara_nagusia);
-    ilara_hasieratu(&finished_ilara);
+    pcb_kont = 0;
+    
 
     while(1)
     {
         if(abisu >= TTL)
         {
-            pthread_mutex_unlock(&mutex1);
+            printf("-(PROC) Amaitu gabeko prozesuak:\n");
+            ilara_erakutsi(pcb_ilara_nagusia);
             printf("-(PROC) Amaitutako prozesuak:\n");
             ilara_erakutsi(finished_ilara);
+
             ilara_ezabatu(&pcb_ilara_nagusia);
             ilara_ezabatu(&finished_ilara);
+
+            pthread_mutex_unlock(&mutex1);
 
             return NULL;
         }

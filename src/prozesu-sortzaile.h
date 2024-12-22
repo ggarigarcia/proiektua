@@ -7,7 +7,7 @@
 
 /* PCB */
 
-/* PCB egoerak */
+/* egoerak */
 #define NEW 0
 #define READY 1
 #define RUNNING 2
@@ -26,14 +26,13 @@ typedef struct pcb{
 
 /* ILARA */
 
-/* Ilara politikak */
+/* politikak */
 #define FCFS 0
 #define SJF 1
 //#define RR 2
 typedef struct{
     pcb *head;
     pcb *tail;
-    //int politika; //0: FIFO, 1: SJF, 2: RR
 } pcb_ilara;
 
 /* FUNTZIOAK */

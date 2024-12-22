@@ -6,65 +6,49 @@
 #include "prozesu-sortzaile.h"
 
 extern pthread_mutex_t mutex1;
-extern pthread_cond_t cond1;
-extern pthread_cond_t cond2;
+extern pthread_cond_t cond1,cond2;
+
 extern uint done,abisu;
 extern machine *makina;
+extern pcb_ilara *pcb_ilara_nagusia;
 
-int politika;
-
-/* pthread_mutex_t mutex_sched;
-pthread_cond_t cond_sched;
-int lana = 0;
-
-void *scheduler(void *arg){
-    //pthread bat mutexekin, aldi berean bi dei egiten badira (erloju,timer_sched) soilik bakarra hartzeko
-    while(1){
-        pthread_mutex_lock(&mutex_sched);
-        while(lana == 0)
-        {
-            pthread_cond_wait(&cond_sched,&mutex_sched);
-        }
-
-    }
-} */
+int politika; //FCFS, SJF, RR
 
 int shortest_job_first(pcb_ilara *ilara)
 {
-    pcb *current = ilara->head;
-    pcb *min = current;
-    pcb *prev = NULL;
-    pcb *prev_min = NULL;
+    if (ilara == NULL || ilara->head == NULL) {
+        return 1; // Error: ilara is NULL or empty
+    }
 
-    while(current != NULL)
-    {
-        if(current->info->exek_denb < min->info->exek_denb)
-        {
-            min = current;
-            prev_min = prev;
+    int swapped;
+    pcb *ptr1;
+    pcb *lptr = NULL;
+
+    // Bubble sort
+    do {
+        swapped = 0;
+        ptr1 = ilara->head;
+
+        while (ptr1->hurrengoa != lptr) {
+            pcb *next = (pcb *)ptr1->hurrengoa;
+            if (ptr1->info->exek_denb > next->info->exek_denb) {
+                // Swap the info pointers
+                pcb_info *temp = ptr1->info;
+                ptr1->info = next->info;
+                next->info = temp;
+                swapped = 1;
+            }
+            ptr1 = next;
         }
-        prev = current;
-        current = (pcb *) current->hurrengoa;
-    }
+        lptr = ptr1;
+    } while (swapped);
 
-    if(min == ilara->head)
-    {
-        ilara->head = (pcb *) min->hurrengoa;
-    } else{
-        prev_min->hurrengoa = min->hurrengoa;
-    }
-
-    if(min == ilara->tail)
-    {
-        ilara->tail = prev_min;
-    }
-
-    return 0;
+    return 0; // Success
 }
 
 
-//TODO 99% mutex bat jarri, ilararen atzipen esklusiboa bermatzeko
-int ordenatu_ilara(pcb_ilara *ilara, int politika)
+//TODO mutex bat jarri, ilararen atzipen esklusiboa bermatzeko
+int ilara_ordenatu(pcb_ilara *ilara)
 {
     switch(politika)
     {
@@ -75,15 +59,12 @@ int ordenatu_ilara(pcb_ilara *ilara, int politika)
             shortest_job_first(ilara);
             break;
         default:
+            printf("(WARNING) Politika okerra\n");
             return 1;
             break;
     }
 
     return 0;
-}
-
-void* disptacher(void *arg){
-    
 }
 
 void *timer_sched(void *arg)
@@ -109,7 +90,7 @@ void *timer_sched(void *arg)
             sched_tick = 0;
 
             printf("(SCHED)\n");
-            //scheduler mutex, cond
+            ilara_ordenatu(pcb_ilara_nagusia);
         }
         pthread_cond_signal(&cond1);
         
