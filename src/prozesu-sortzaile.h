@@ -44,6 +44,7 @@ int ilara_hasieratu(pcb_ilara **ilara);
 int ilara_ezabatu(pcb_ilara **ilara);
 int ilara_pantailaratu(pcb_ilara *ilara);
 
+void timer_proc_amaitu();
 void *timer_proc(void *arg);
 
 #endif //PROZESU_SORTZAILE

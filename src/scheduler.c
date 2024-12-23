@@ -52,15 +52,23 @@ int haria_esleitu(pcb_ilara *ilara)
             {
                 makina->hariak[i].uneko_pcb = pcb;
                 makina->harimap[i] = 1;
-                printf("-(SCHED) %d haria esleitu zaio PCB %d-ri\n",i,pcb->info->id);
+                printf("--(DISP) %d Haria: PCB %d sartu da\n",i,pcb->info->id);
                 return 0;
+            } else{
+                //printf("--(DISP) Warning: ez dago PCB-rik ilaran\n");
+                return 1;
             }
         }
         i++;
     }
 
-    printf("(WARNING) Ez dago haririk libre\n");
-    return 1; 
+    if(i == makina->total_hari_kop)
+    {
+        printf("--(DISP) Warning: ez dago haririk libre\n");
+        return 2; 
+    }
+
+    return 0;
 }
 
 void haritik_atera(int hari_id, pcb *pcb, pcb_ilara *ilara)
@@ -69,17 +77,33 @@ void haritik_atera(int hari_id, pcb *pcb, pcb_ilara *ilara)
     makina->harimap[hari_id] = 0;
     makina->hariak[hari_id].uneko_pcb = NULL;
 
-    printf("-(SCHED) PCB %d, %d haritik atera da\n",pcb->info->id,hari_id);
+    printf("--(DISP) %d Haria: %d PCB-a atera da\n", hari_id, pcb->info->id);
 
     return;
 }
 
+void hariak_pantailaratu()
+{
+    for(int i = 0; i < makina->total_hari_kop; i++)
+    {
+        if(makina->harimap[i] == 1) //okupatuta
+        {
+            printf(" - PCB: id = %d, exek_denb = %d\n",makina->hariak[i].uneko_pcb->info->id, makina->hariak[i].uneko_pcb->info->exek_denb);
+
+            //PCB-a ezabatu
+            free(makina->hariak[i].uneko_pcb->info);
+            makina->hariak[i].uneko_pcb->info = NULL;
+            free(makina->hariak[i].uneko_pcb);
+            makina->hariak[i].uneko_pcb = NULL;
+        }
+    }
+
+    return;
+}
 
 int shortest_job_first(pcb_ilara *ilara)
 {
-    if (ilara == NULL || ilara->head == NULL) {
-        return 1; // Error: ilara is NULL or empty
-    }
+    if (ilara == NULL || ilara->head == NULL) return 1; 
 
     int swapped;
     pcb *ptr1;
@@ -93,7 +117,7 @@ int shortest_job_first(pcb_ilara *ilara)
         while (ptr1->hurrengoa != lptr) {
             pcb *next = (pcb *)ptr1->hurrengoa;
             if (ptr1->info->exek_denb > next->info->exek_denb) {
-                // Swap the info pointers
+                // Info aldatu
                 pcb_info *temp = ptr1->info;
                 ptr1->info = next->info;
                 next->info = temp;
@@ -104,23 +128,22 @@ int shortest_job_first(pcb_ilara *ilara)
         lptr = ptr1;
     } while (swapped);
 
-    return 0; // Success
+    return 0;
 }
 
 
-//TODO mutex bat jarri, ilararen atzipen esklusiboa bermatzeko
+//TODO mutex bat jarri??
 int ilara_ordenatu(pcb_ilara *ilara)
 {
     switch(politika)
     {
         case FCFS:
-
             break;
         case SJF:
             shortest_job_first(ilara);
             break;
         default:
-            printf("(WARNING) Politika okerra\n");
+            printf("--(SCHED) Warning: hautatutako politika ez da existitzen\n");
             return 1;
             break;
     }
@@ -139,8 +162,9 @@ void *timer_sched(void *arg)
     {
         if(abisu >= TTL)
         {
-            printf("(SCHED) Harietan geratu diren prozesuak:\n");
-            //TODO print okupatuta dauden hariak
+            printf("\n\n--(SCHED) Harietan geratu diren prozesuak:\n");
+            hariak_pantailaratu();
+
             pthread_mutex_unlock(&mutex1);
             return NULL;
         }
@@ -152,7 +176,6 @@ void *timer_sched(void *arg)
         {
             sched_tick = 0;
 
-            printf("(SCHED)\n");
             ilara_ordenatu(pcb_ilara_nagusia);
             haria_esleitu(pcb_ilara_nagusia);
         }

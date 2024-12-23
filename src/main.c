@@ -28,7 +28,8 @@ int makina_hasieratu(uint cpu_kop, uint core_kop, uint hari_kop)
     
     makina->total_hari_kop = cpu_kop * core_kop * hari_kop;
 
-    makina->harimap = malloc(makina->total_hari_kop * sizeof(uint)); //bitmap
+    //bitmap
+    makina->harimap = malloc(makina->total_hari_kop * sizeof(uint));
     if(makina->harimap == NULL) return 1;
     
     makina->hariak = malloc(makina->total_hari_kop * sizeof(hari));
@@ -78,7 +79,7 @@ void *erloju(void *arg)
             erloju_tick = 0;
 
             abisu++;
-            printf("(MAIN) Abisu %d \n",abisu);  
+            printf("\n(MAIN) Abisu %d \n",abisu);  
             if(abisu == TTL){ //KERNELA AMAITU
                 pthread_mutex_unlock(&mutex1);
                 return NULL;
@@ -101,12 +102,12 @@ int main(int argc, char *argv[])
     /* argumentu egiaztapena */
     if(argc < 8)
     {
-        printf("%s <clock_maizt> <sched_maizt> <proc_maizt> <cpu_kop> <core_kop> <hari_kop> <sched_politika>\n",argv[0]);
+        printf("\n%s <clock_maizt> <sched_maizt> <proc_maizt> <cpu_kop> <core_kop> <hari_kop> <sched_politika>\n",argv[0]);
         return 1;
     }
 
     /* KERNELA MARTXAN JARRI */
-    printf("Sistema martxan jartzen...\n");
+    printf("\nSistema martxan jartzen...\n");
 
     pthread_mutex_init(&mutex1,NULL);
     pthread_cond_init(&cond1,NULL);
@@ -128,8 +129,17 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    ilara_hasieratu(&pcb_ilara_nagusia);
-    ilara_hasieratu(&finished_ilara);
+    if(ilara_hasieratu(&pcb_ilara_nagusia) == 1)
+    {
+        printf("(MAIN) Errorea pcb_ilara_nagusia sortzean\n");
+        return 1;
+    }
+
+    if(ilara_hasieratu(&finished_ilara) == 1)
+    {
+        printf("(MAIN) Errorea finished_ilara sortzean\n");
+        return 1;
+    }
 
     pthread_create(&p1,NULL,erloju,(void*)&argClock);
     usleep(100);
@@ -143,14 +153,15 @@ int main(int argc, char *argv[])
     pthread_join(p3,NULL); 
 
     /* KERNELA AMAITU */
-    printf("Sistema itzaltzen...\n");
+    printf("\n\nSistema itzaltzen...\n");
     makina_bukatu();
+    //TODO agian hemen amaitu beste egitura batzuk (chequeatu dependentziak)
 
     pthread_mutex_destroy(&mutex1);
     pthread_cond_destroy(&cond1);
     pthread_cond_destroy(&cond2);
 
-    printf("Sistema behar bezala amaitu da\n");
+    printf("Sistema behar bezala amaitu da\n\n");
 
     return 0;
 }

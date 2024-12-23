@@ -22,14 +22,10 @@ pthread_cond_t cond_proc2;
 
 /* FUNTZIOAK */
 
-/* BERRIAK */
-
 pcb *pcb_sortu(int id)
 {
     pcb *pcb_berri = malloc(sizeof(pcb));
-    if (pcb_berri == NULL) {
-        return NULL;
-    }
+    if (pcb_berri == NULL) return NULL;
 
     pcb_berri->info = malloc(sizeof(pcb_info));
     if (pcb_berri->info == NULL) {
@@ -40,7 +36,7 @@ pcb *pcb_sortu(int id)
     pcb_berri->info->id = id;
     pcb_berri->info->egoera = NEW;
     pcb_berri->info->prioritatea = 0;
-    pcb_berri->info->exek_denb = (10 * TTL) - (10 * pcb_kont);
+    pcb_berri->info->exek_denb = 50-pcb_kont;
     pcb_berri->hurrengoa = NULL;
 
     return pcb_berri;
@@ -69,6 +65,11 @@ pcb *ilaratik_atera(pcb_ilara *ilara)
     }
 
     pcb *pcb = ilara->head;
+    
+    if(ilara->head == ilara->tail)
+    {
+        ilara->tail = NULL;
+    }
     ilara->head = ilara->head->hurrengoa;
 
     return pcb;
@@ -112,11 +113,24 @@ int ilara_pantailaratu(pcb_ilara *ilara)
 
     while(current != NULL)
     {
-        printf(" -(PROC) PCB %d, exek_denb: %d\n",current->info->id,current->info->exek_denb);
+        printf(" - PCB %d, exek_denb: %d\n",current->info->id,current->info->exek_denb);
         current = (pcb *) current->hurrengoa;
     }
 
     return 0;
+}
+
+void timer_proc_amaitu()
+{
+    printf("\n\n-(PROC) Amaitu gabeko prozesuak:\n");
+    ilara_pantailaratu(pcb_ilara_nagusia);
+    printf("\n-(PROC) Amaitutako prozesuak:\n");
+    ilara_pantailaratu(finished_ilara);
+
+    ilara_ezabatu(&pcb_ilara_nagusia);
+    ilara_ezabatu(&finished_ilara);
+
+    return;
 }
 
 void *timer_proc(void *arg)
@@ -131,23 +145,16 @@ void *timer_proc(void *arg)
     
     while(1)
     {
-        if(abisu >= TTL)
+        done ++;
+
+        if(abisu >= TTL) //amaitu
         {
-            printf("-(PROC) Amaitu gabeko prozesuak:\n");
-            ilara_pantailaratu(pcb_ilara_nagusia);
-            printf("-(PROC) Amaitutako prozesuak:\n");
-            ilara_pantailaratu(finished_ilara);
-
-            ilara_ezabatu(&pcb_ilara_nagusia);
-            ilara_ezabatu(&finished_ilara);
-
+            timer_proc_amaitu();
             pthread_mutex_unlock(&mutex1);
 
             return NULL;
         }
         
-        done ++;
-
         proc_tick++;
         if(proc_tick == maiztasuna)
         {
@@ -156,7 +163,7 @@ void *timer_proc(void *arg)
             pcb *pcb_berri = pcb_sortu(pcb_kont);
             pcb_kont++;
             ilaran_gehitu(pcb_ilara_nagusia,pcb_berri);
-            
+            printf("-(PROC) PCB berria: id = %d, exek_denb = %d\n",pcb_berri->info->id,pcb_berri->info->exek_denb);  
         }
         pthread_cond_signal(&cond1);
         pthread_cond_wait(&cond2,&mutex1);
