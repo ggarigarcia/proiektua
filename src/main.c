@@ -21,57 +21,19 @@ uint abisu; //TTL-rekin lotuta
 machine *makina;
 
 /* FUNTZIOAK */
-int hariak_eguneratu()
-{
-    uint *uneko_exek_denb = NULL;
-
-    uint i = 0;
-    while(i < makina->hari_kop) //harimap guztia zeharkatu
-    {
-        if(makina->harimap[i] == 1) //okupatuta
-        {
-            uneko_exek_denb = &(makina->hariak[i].uneko_pcb->info->exek_denb);
-            if(*uneko_exek_denb > 0) //jarraitu exek_denb kentzen
-            {
-                (*uneko_exek_denb)--;
-                
-            } else{ //BOTA (dispatcher??)
-                pcb_mugitu(makina->hariak[i].uneko_pcb, pcb_ilara_nagusia, finished_ilara);
-                makina->hariak[i].uneko_pcb = NULL; //punteroa modifikatzen du, ez PCB-a
-                makina->harimap[i] = 0;
-                printf("-(MAIN) %d haria libratu egin da\n",i);
-            }
-        }
-        i++;
-    }  
-    
-    return 0;
-}
-
 int makina_hasieratu(uint cpu_kop, uint core_kop, uint hari_kop)
 {
     makina = malloc(sizeof(machine));
-    if (makina == NULL)
-    {
-        return 1; //malloc errorea
-    }
-    
-    //azpiko hiru hauek sobran? total_hari_kop aldagaia aldagai hauek gabe kalkulatu daiteke
-    makina->cpu_kop = cpu_kop;
-    makina->core_kop = core_kop;
-    makina->hari_kop = hari_kop;
+    if (makina == NULL) return 1;
     
     makina->total_hari_kop = cpu_kop * core_kop * hari_kop;
-    makina->harimap = malloc(makina->total_hari_kop * sizeof(uint)); //bitmap
-    if(makina->harimap == NULL)
-    {
-        return 1; //malloc errorea
-    }
-    makina->hariak = malloc(cpu_kop * core_kop * hari_kop * sizeof(hari));
-    if(makina->hariak == NULL)
-    {
-        return 1; //malloc errorea
-    }
+
+    //bitmap
+    makina->harimap = malloc(makina->total_hari_kop * sizeof(uint));
+    if(makina->harimap == NULL) return 1;
+    
+    makina->hariak = malloc(makina->total_hari_kop * sizeof(hari));
+    if(makina->hariak == NULL) return 1;
 
     //bitmapa + hari bakoitza hasieratu
     for(int i = 0; i < makina->total_hari_kop; i++)
@@ -84,7 +46,7 @@ int makina_hasieratu(uint cpu_kop, uint core_kop, uint hari_kop)
     return 0;
 }
 
-int makina_bukatu()
+void makina_bukatu()
 {
     if (makina->hariak != NULL) {
         free(makina->hariak);
@@ -94,7 +56,7 @@ int makina_bukatu()
     free(makina);
     makina = NULL;
 
-    return 0;
+    return;
 }
 
 void *erloju(void *arg)
@@ -117,7 +79,7 @@ void *erloju(void *arg)
             erloju_tick = 0;
 
             abisu++;
-            printf("(MAIN) Abisu %d \n",abisu);  
+            printf("\n(MAIN) Abisu %d \n",abisu);  
             if(abisu == TTL){ //KERNELA AMAITU
                 pthread_mutex_unlock(&mutex1);
                 return NULL;
@@ -140,12 +102,12 @@ int main(int argc, char *argv[])
     /* argumentu egiaztapena */
     if(argc < 8)
     {
-        printf("%s <clock_maizt> <sched_maizt> <proc_maizt> <cpu_kop> <core_kop> <hari_kop> <sched_politika>\n",argv[0]);
+        printf("\n%s <clock_maizt> <sched_maizt> <proc_maizt> <cpu_kop> <core_kop> <hari_kop> <sched_politika>\n",argv[0]);
         return 1;
     }
 
     /* KERNELA MARTXAN JARRI */
-    printf("Sistema martxan jartzen...\n");
+    printf("\nSistema martxan jartzen...\n");
 
     pthread_mutex_init(&mutex1,NULL);
     pthread_cond_init(&cond1,NULL);
@@ -159,6 +121,7 @@ int main(int argc, char *argv[])
     uint cpu_kop = atoi(argv[4]);
     uint core_kop = atoi(argv[5]);
     uint hari_kop = atoi(argv[6]);
+    politika = atoi(argv[7]);
 
     if(makina_hasieratu(cpu_kop,core_kop,hari_kop) != 0)
     {
@@ -166,26 +129,39 @@ int main(int argc, char *argv[])
         return 1;
     }
 
+    if(ilara_hasieratu(&pcb_ilara_nagusia) == 1)
+    {
+        printf("(MAIN) Errorea pcb_ilara_nagusia sortzean\n");
+        return 1;
+    }
+
+    if(ilara_hasieratu(&finished_ilara) == 1)
+    {
+        printf("(MAIN) Errorea finished_ilara sortzean\n");
+        return 1;
+    }
+
     pthread_create(&p1,NULL,erloju,(void*)&argClock);
-    //sleep(1);
+    usleep(100);
     pthread_create(&p2,NULL,timer_sched,(void*)&argT_sched);
     pthread_create(&p3,NULL,timer_proc,(void*)&argT_proc);
 
     /* ----------------------------------------------- */
 
-    /* KERNELA AMAITU */
-    pthread_join(p1,NULL); printf("-(MAIN) clock amaitua\n");
-    pthread_join(p2,NULL); printf("-(MAIN) timer_sched amaitua\n");
-    pthread_join(p3,NULL); printf("-(MAIN) timer_proc amaitua\n");
+    pthread_join(p1,NULL);
+    pthread_join(p2,NULL); 
+    pthread_join(p3,NULL); 
 
-    printf("Sistema itzaltzen...\n");
+    /* KERNELA AMAITU */
+    printf("\n\nSistema itzaltzen...\n");
     makina_bukatu();
+    //TODO agian hemen amaitu beste egitura batzuk (chequeatu dependentziak)
 
     pthread_mutex_destroy(&mutex1);
     pthread_cond_destroy(&cond1);
     pthread_cond_destroy(&cond2);
 
-    printf("Sistema behar bezala amaitu da\n");
+    printf("Sistema behar bezala amaitu da\n\n");
 
     return 0;
 }

@@ -6,84 +6,149 @@
 #include "prozesu-sortzaile.h"
 
 extern pthread_mutex_t mutex1;
-extern pthread_cond_t cond1;
-extern pthread_cond_t cond2;
+extern pthread_cond_t cond1,cond2;
+
 extern uint done,abisu;
 extern machine *makina;
+extern pcb_ilara *pcb_ilara_nagusia, *finished_ilara;
 
-int politika;
+int politika; //FCFS, SJF, RR
 
-/* pthread_mutex_t mutex_sched;
-pthread_cond_t cond_sched;
-int lana = 0;
-
-void *scheduler(void *arg){
-    //pthread bat mutexekin, aldi berean bi dei egiten badira (erloju,timer_sched) soilik bakarra hartzeko
-    while(1){
-        pthread_mutex_lock(&mutex_sched);
-        while(lana == 0)
-        {
-            pthread_cond_wait(&cond_sched,&mutex_sched);
-        }
-
-    }
-} */
-
-int shortest_job_first(pcb_ilara *ilara)
+/* METODOAK */
+void hariak_eguneratu()
 {
-    pcb *current = ilara->head;
-    pcb *min = current;
-    pcb *prev = NULL;
-    pcb *prev_min = NULL;
+    uint *uneko_exek_denb = NULL;
 
-    while(current != NULL)
+    uint i = 0;
+    while(i < makina->total_hari_kop) //harimap guztia zeharkatu
     {
-        if(current->info->exek_denb < min->info->exek_denb)
+        if(makina->harimap[i] == 1) //okupatuta
         {
-            min = current;
-            prev_min = prev;
+            uneko_exek_denb = &(makina->hariak[i].uneko_pcb->info->exek_denb);
+            if(*uneko_exek_denb > 0) //jarraitu exek_denb kentzen
+            {
+                (*uneko_exek_denb)--;
+                
+            } else{ //dispatcher
+                haritik_atera(i,makina->hariak[i].uneko_pcb,finished_ilara);
+                haria_esleitu(pcb_ilara_nagusia);
+            }
         }
-        prev = current;
-        current = (pcb *) current->hurrengoa;
+        i++;
+    }  
+    
+    return;
+}
+
+int haria_esleitu(pcb_ilara *ilara)
+{
+    int i = 0;
+    while(i < makina->total_hari_kop)
+    {
+        if(makina->harimap[i] == 0) //haria libre dago
+        {
+            pcb *pcb = ilaratik_atera(ilara);
+            if(pcb != NULL)
+            {
+                makina->hariak[i].uneko_pcb = pcb;
+                makina->harimap[i] = 1;
+                printf("--(DISP) %d Haria: PCB %d sartu da\n",i,pcb->info->id);
+                return 0;
+            } else{
+                //printf("--(DISP) Warning: ez dago PCB-rik ilaran\n");
+                return 1;
+            }
+        }
+        i++;
     }
 
-    if(min == ilara->head)
+    if(i == makina->total_hari_kop)
     {
-        ilara->head = (pcb *) min->hurrengoa;
-    } else{
-        prev_min->hurrengoa = min->hurrengoa;
-    }
-
-    if(min == ilara->tail)
-    {
-        ilara->tail = prev_min;
+        printf("--(DISP) Warning: ez dago haririk libre\n");
+        return 2; 
     }
 
     return 0;
 }
 
+void haritik_atera(int hari_id, pcb *pcb, pcb_ilara *ilara)
+{
+    ilaran_gehitu(ilara,pcb);
+    makina->harimap[hari_id] = 0;
+    makina->hariak[hari_id].uneko_pcb = NULL;
 
-//TODO 99% mutex bat jarri, ilararen atzipen esklusiboa bermatzeko
-int ordenatu_ilara(pcb_ilara *ilara, int politika)
+    printf("--(DISP) %d Haria: %d PCB-a atera da\n", hari_id, pcb->info->id);
+
+    return;
+}
+
+void hariak_pantailaratu()
+{
+    for(int i = 0; i < makina->total_hari_kop; i++)
+    {
+        if(makina->harimap[i] == 1) //okupatuta
+        {
+            printf(" - PCB: id = %d, exek_denb = %d\n",makina->hariak[i].uneko_pcb->info->id, makina->hariak[i].uneko_pcb->info->exek_denb);
+
+            //PCB-a ezabatu
+            free(makina->hariak[i].uneko_pcb->info);
+            makina->hariak[i].uneko_pcb->info = NULL;
+            free(makina->hariak[i].uneko_pcb);
+            makina->hariak[i].uneko_pcb = NULL;
+        }
+    }
+
+    return;
+}
+
+int shortest_job_first(pcb_ilara *ilara)
+{
+    if (ilara == NULL || ilara->head == NULL) return 1; 
+
+    int swapped;
+    pcb *ptr1;
+    pcb *lptr = NULL;
+
+    // Bubble sort
+    do {
+        swapped = 0;
+        ptr1 = ilara->head;
+
+        while (ptr1->hurrengoa != lptr) {
+            pcb *next = (pcb *)ptr1->hurrengoa;
+            if (ptr1->info->exek_denb > next->info->exek_denb) {
+                // Info aldatu
+                pcb_info *temp = ptr1->info;
+                ptr1->info = next->info;
+                next->info = temp;
+                swapped = 1;
+            }
+            ptr1 = next;
+        }
+        lptr = ptr1;
+    } while (swapped);
+
+    return 0;
+}
+
+
+//TODO mutex bat jarri??
+int ilara_ordenatu(pcb_ilara *ilara)
 {
     switch(politika)
     {
         case FCFS:
-
             break;
         case SJF:
             shortest_job_first(ilara);
             break;
         default:
+            printf("--(SCHED) Warning: hautatutako politika ez da existitzen\n");
             return 1;
             break;
     }
 
     return 0;
-}
-
-void* disptacher(void *arg){
-    
 }
 
 void *timer_sched(void *arg)
@@ -97,6 +162,9 @@ void *timer_sched(void *arg)
     {
         if(abisu >= TTL)
         {
+            printf("\n\n--(SCHED) Harietan geratu diren prozesuak:\n");
+            hariak_pantailaratu();
+
             pthread_mutex_unlock(&mutex1);
             return NULL;
         }
@@ -108,8 +176,8 @@ void *timer_sched(void *arg)
         {
             sched_tick = 0;
 
-            printf("(SCHED)\n");
-            //scheduler mutex, cond
+            ilara_ordenatu(pcb_ilara_nagusia);
+            haria_esleitu(pcb_ilara_nagusia);
         }
         pthread_cond_signal(&cond1);
         

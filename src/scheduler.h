@@ -3,7 +3,14 @@
 
 #include "prozesu-sortzaile.h"
 
-int ordenatu_ilara(pcb_ilara *ilara, int politika); //scheduler
+/* METODOAK */
+void hariak_eguneratu();
+int haria_esleitu(pcb_ilara *ilara);
+void haritik_atera(int hari_id, pcb *pcb, pcb_ilara *ilara); //dispatcherra, como tal
+void hariak_pantailaratu();
+
+int shortest_job_first(pcb_ilara *ilara);
+int ilara_ordenatu(pcb_ilara *ilara); //schedulerra, como tal
 
 void *timer_sched(void *arg);
 
