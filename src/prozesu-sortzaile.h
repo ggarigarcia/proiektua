@@ -36,18 +36,13 @@ typedef struct{
 } pcb_ilara;
 
 /* FUNTZIOAK */
-int haria_esleitu(pcb *pcb); //TODO scheduler.h-ra pasa
 
-/* pcb */
-int pcb_gehitu(pcb *pcb, pcb_ilara *ilara);
-int pcb_ezabatu(pcb *mypcb, pcb_ilara *ilara);
-int pcb_mugitu(pcb *pcb, pcb_ilara *ilara1, pcb_ilara *ilara2);
-int pcb_sortu(pcb **pcb_berri); //TODO egoera, prioritatea, exek_denb parametro gisa
-
-/* ilara */
+pcb *pcb_sortu(int id);
+void ilaran_gehitu(pcb_ilara *ilara, pcb *pcb);
+pcb *ilaratik_atera(pcb_ilara *ilara);
+int ilara_hasieratu(pcb_ilara **ilara);
 int ilara_ezabatu(pcb_ilara **ilara);
-int ilara_hasieratu(pcb_ilara **ilara); //'**ilara' = struct-a eta punteroa(malloc/free/NULL) aldatzeko 
-int ilara_erakutsi(pcb_ilara *ilara);
+int ilara_pantailaratu(pcb_ilara *ilara);
 
 void *timer_proc(void *arg);
 
