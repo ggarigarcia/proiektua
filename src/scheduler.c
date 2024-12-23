@@ -10,9 +10,70 @@ extern pthread_cond_t cond1,cond2;
 
 extern uint done,abisu;
 extern machine *makina;
-extern pcb_ilara *pcb_ilara_nagusia;
+extern pcb_ilara *pcb_ilara_nagusia, *finished_ilara;
 
 int politika; //FCFS, SJF, RR
+
+/* METODOAK */
+void hariak_eguneratu()
+{
+    uint *uneko_exek_denb = NULL;
+
+    uint i = 0;
+    while(i < makina->total_hari_kop) //harimap guztia zeharkatu
+    {
+        if(makina->harimap[i] == 1) //okupatuta
+        {
+            uneko_exek_denb = &(makina->hariak[i].uneko_pcb->info->exek_denb);
+            if(*uneko_exek_denb > 0) //jarraitu exek_denb kentzen
+            {
+                (*uneko_exek_denb)--;
+                
+            } else{ //dispatcher
+                haritik_atera(i,makina->hariak[i].uneko_pcb,finished_ilara);
+                haria_esleitu(pcb_ilara_nagusia);
+            }
+        }
+        i++;
+    }  
+    
+    return;
+}
+
+int haria_esleitu(pcb_ilara *ilara)
+{
+    int i = 0;
+    while(i < makina->total_hari_kop)
+    {
+        if(makina->harimap[i] == 0) //haria libre dago
+        {
+            pcb *pcb = ilaratik_atera(ilara);
+            if(pcb != NULL)
+            {
+                makina->hariak[i].uneko_pcb = pcb;
+                makina->harimap[i] = 1;
+                printf("-(SCHED) %d haria esleitu zaio PCB %d-ri\n",i,pcb->info->id);
+                return 0;
+            }
+        }
+        i++;
+    }
+
+    printf("(WARNING) Ez dago haririk libre\n");
+    return 1; 
+}
+
+void haritik_atera(int hari_id, pcb *pcb, pcb_ilara *ilara)
+{
+    ilaran_gehitu(ilara,pcb);
+    makina->harimap[hari_id] = 0;
+    makina->hariak[hari_id].uneko_pcb = NULL;
+
+    printf("-(SCHED) PCB %d, %d haritik atera da\n",pcb->info->id,hari_id);
+
+    return;
+}
+
 
 int shortest_job_first(pcb_ilara *ilara)
 {
@@ -78,6 +139,8 @@ void *timer_sched(void *arg)
     {
         if(abisu >= TTL)
         {
+            printf("(SCHED) Harietan geratu diren prozesuak:\n");
+            //TODO print okupatuta dauden hariak
             pthread_mutex_unlock(&mutex1);
             return NULL;
         }
@@ -91,6 +154,7 @@ void *timer_sched(void *arg)
 
             printf("(SCHED)\n");
             ilara_ordenatu(pcb_ilara_nagusia);
+            haria_esleitu(pcb_ilara_nagusia);
         }
         pthread_cond_signal(&cond1);
         

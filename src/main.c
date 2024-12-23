@@ -21,57 +21,18 @@ uint abisu; //TTL-rekin lotuta
 machine *makina;
 
 /* FUNTZIOAK */
-int hariak_eguneratu()
-{
-    uint *uneko_exek_denb = NULL;
-
-    uint i = 0;
-    while(i < makina->hari_kop) //harimap guztia zeharkatu
-    {
-        if(makina->harimap[i] == 1) //okupatuta
-        {
-            uneko_exek_denb = &(makina->hariak[i].uneko_pcb->info->exek_denb);
-            if(*uneko_exek_denb > 0) //jarraitu exek_denb kentzen
-            {
-                (*uneko_exek_denb)--;
-                
-            } else{ //BOTA (dispatcher??)
-                pcb_mugitu(makina->hariak[i].uneko_pcb, pcb_ilara_nagusia, finished_ilara);
-                makina->hariak[i].uneko_pcb = NULL; //punteroa modifikatzen du, ez PCB-a
-                makina->harimap[i] = 0;
-                printf("-(MAIN) %d haria libratu egin da\n",i);
-            }
-        }
-        i++;
-    }  
-    
-    return 0;
-}
-
 int makina_hasieratu(uint cpu_kop, uint core_kop, uint hari_kop)
 {
     makina = malloc(sizeof(machine));
-    if (makina == NULL)
-    {
-        return 1; //malloc errorea
-    }
-    
-    //azpiko hiru hauek sobran? total_hari_kop aldagaia aldagai hauek gabe kalkulatu daiteke
-    makina->cpu_kop = cpu_kop;
-    makina->core_kop = core_kop;
-    makina->hari_kop = hari_kop;
+    if (makina == NULL) return 1;
     
     makina->total_hari_kop = cpu_kop * core_kop * hari_kop;
+
     makina->harimap = malloc(makina->total_hari_kop * sizeof(uint)); //bitmap
-    if(makina->harimap == NULL)
-    {
-        return 1; //malloc errorea
-    }
-    makina->hariak = malloc(cpu_kop * core_kop * hari_kop * sizeof(hari));
-    if(makina->hariak == NULL)
-    {
-        return 1; //malloc errorea
-    }
+    if(makina->harimap == NULL) return 1;
+    
+    makina->hariak = malloc(makina->total_hari_kop * sizeof(hari));
+    if(makina->hariak == NULL) return 1;
 
     //bitmapa + hari bakoitza hasieratu
     for(int i = 0; i < makina->total_hari_kop; i++)
@@ -84,7 +45,7 @@ int makina_hasieratu(uint cpu_kop, uint core_kop, uint hari_kop)
     return 0;
 }
 
-int makina_bukatu()
+void makina_bukatu()
 {
     if (makina->hariak != NULL) {
         free(makina->hariak);
@@ -94,7 +55,7 @@ int makina_bukatu()
     free(makina);
     makina = NULL;
 
-    return 0;
+    return;
 }
 
 void *erloju(void *arg)
@@ -177,11 +138,11 @@ int main(int argc, char *argv[])
 
     /* ----------------------------------------------- */
 
-    /* KERNELA AMAITU */
     pthread_join(p1,NULL);
     pthread_join(p2,NULL); 
     pthread_join(p3,NULL); 
 
+    /* KERNELA AMAITU */
     printf("Sistema itzaltzen...\n");
     makina_bukatu();
 

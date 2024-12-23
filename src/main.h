@@ -21,19 +21,14 @@ typedef struct{
 } hari;
 
 typedef struct{
-    uint cpu_kop; //argv[4]
-    uint core_kop; //argv[5]
-    uint hari_kop; //argv[6]
-    /* --- */
     uint total_hari_kop; //cpu_kop * core_kop * hari_kop
     uint *harimap; //harien bitmapa
     hari *hariak; 
 } machine;
 
-
-int hariak_eguneratu(); //TODO scheduler.h??
+/* METODOAK */
 int makina_hasieratu(uint cpu_kop, uint core_kop, uint hari_kop);
-int makina_bukatu();
+void makina_bukatu();
 void *erloju(void *arg);
 
 #endif //MAIN
