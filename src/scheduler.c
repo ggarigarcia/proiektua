@@ -10,7 +10,7 @@ extern pthread_cond_t cond1,cond2;
 
 extern uint done,abisu;
 extern machine *makina;
-extern pcb_ilara *pcb_ilara_nagusia, *finished_ilara;
+extern pcb_ilara *pcb_ilara_0, *pcb_ilara_1, *pcb_ilara_2, *pcb_ilara_finished;
 
 int politika; //FCFS, SJF, RR
 
@@ -18,6 +18,7 @@ int politika; //FCFS, SJF, RR
 void hariak_eguneratu()
 {
     uint *uneko_exek_denb = NULL;
+    int *uneko_quantum = NULL;
 
     uint i = 0;
     while(i < makina->total_hari_kop) //harimap guztia zeharkatu
@@ -28,11 +29,31 @@ void hariak_eguneratu()
             if(*uneko_exek_denb > 0) //jarraitu exek_denb kentzen
             {
                 (*uneko_exek_denb)--;
+
+
+                //if(politika = RR)
+                //{
+                    uneko_quantum = &(makina->hariak[i].uneko_pcb->info->quantum);
+                    (*uneko_quantum)--;
+
+                    if(*uneko_quantum == 0)
+                    {
+                        //suposatuz ilara bakarra erabiltzen ari garela
+                        *uneko_quantum = QUANTUM;
+                        haritik_atera(i, makina->hariak->uneko_pcb, pcb_ilara_0);
+                        haria_esleitu(pcb_ilara_0);
+
+                        //TODO pixkanakako degradazioa, quantuma handituz
+                        
+                    }
+                //}
                 
             } else{ //dispatcher
-                haritik_atera(i,makina->hariak[i].uneko_pcb,finished_ilara);
-                haria_esleitu(pcb_ilara_nagusia);
+                haritik_atera(i,makina->hariak[i].uneko_pcb,pcb_ilara_finished);
+                haria_esleitu(pcb_ilara_0);
             }
+            uneko_exek_denb = NULL;
+
         }
         i++;
     }  
@@ -88,7 +109,7 @@ void hariak_pantailaratu()
     {
         if(makina->harimap[i] == 1) //okupatuta
         {
-            printf(" - PCB: id = %d, exek_denb = %d\n",makina->hariak[i].uneko_pcb->info->id, makina->hariak[i].uneko_pcb->info->exek_denb);
+            printf(" - PCB: id = %d, exek_denb = %d\n", makina->hariak[i].uneko_pcb->info->id, makina->hariak[i].uneko_pcb->info->exek_denb);
 
             //PCB-a ezabatu
             free(makina->hariak[i].uneko_pcb->info);
@@ -176,8 +197,8 @@ void *timer_sched(void *arg)
         {
             sched_tick = 0;
 
-            ilara_ordenatu(pcb_ilara_nagusia);
-            haria_esleitu(pcb_ilara_nagusia);
+            ilara_ordenatu(pcb_ilara_0);
+            haria_esleitu(pcb_ilara_0);
         }
         pthread_cond_signal(&cond1);
         

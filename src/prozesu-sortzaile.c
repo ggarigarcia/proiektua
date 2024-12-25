@@ -8,13 +8,13 @@
 extern pthread_mutex_t mutex1;
 extern pthread_cond_t cond1;
 extern pthread_cond_t cond2;
+
 extern uint done, abisu;
 extern machine *makina;
 extern int politika;
 
 uint pcb_kont; //PCB-en id-ak esleitzeko
-pcb_ilara *pcb_ilara_nagusia;
-pcb_ilara *finished_ilara;
+extern pcb_ilara *pcb_ilara_0, *pcb_ilara_1, *pcb_ilara_2, *pcb_ilara_finished;
 
 pthread_mutex_t mutex_proc;
 pthread_cond_t cond_proc1;
@@ -37,6 +37,7 @@ pcb *pcb_sortu(int id)
     pcb_berri->info->egoera = NEW;
     pcb_berri->info->prioritatea = 0;
     pcb_berri->info->exek_denb = 50-pcb_kont;
+    pcb_berri->info->quantum = QUANTUM;
     pcb_berri->hurrengoa = NULL;
 
     return pcb_berri;
@@ -123,12 +124,16 @@ int ilara_pantailaratu(pcb_ilara *ilara)
 void timer_proc_amaitu()
 {
     printf("\n\n-(PROC) Amaitu gabeko prozesuak:\n");
-    ilara_pantailaratu(pcb_ilara_nagusia);
+    ilara_pantailaratu(pcb_ilara_0);
+    //ilara_pantailaratu(pcb_ilara_1);
+    //ilara_pantailaratu(pcb_ilara_2);
     printf("\n-(PROC) Amaitutako prozesuak:\n");
-    ilara_pantailaratu(finished_ilara);
+    ilara_pantailaratu(pcb_ilara_finished);
 
-    ilara_ezabatu(&pcb_ilara_nagusia);
-    ilara_ezabatu(&finished_ilara);
+    ilara_ezabatu(&pcb_ilara_0);
+    ilara_ezabatu(&pcb_ilara_1);
+    ilara_ezabatu(&pcb_ilara_2);
+    ilara_ezabatu(&pcb_ilara_finished);
 
     return;
 }
@@ -162,7 +167,7 @@ void *timer_proc(void *arg)
 
             pcb *pcb_berri = pcb_sortu(pcb_kont);
             pcb_kont++;
-            ilaran_gehitu(pcb_ilara_nagusia,pcb_berri);
+            ilaran_gehitu(pcb_ilara_0,pcb_berri);
             printf("-(PROC) PCB berria: id = %d, exek_denb = %d\n",pcb_berri->info->id,pcb_berri->info->exek_denb);  
         }
         pthread_cond_signal(&cond1);

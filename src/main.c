@@ -8,8 +8,7 @@
 #include "prozesu-sortzaile.h"
 
 /* ALDAGAI GLOBALAK */
-extern pcb_ilara *pcb_ilara_nagusia;
-extern pcb_ilara *finished_ilara;
+pcb_ilara *pcb_ilara_0, *pcb_ilara_1, *pcb_ilara_2, *pcb_ilara_finished;
 extern int politika;
 
 pthread_mutex_t mutex1;
@@ -70,9 +69,7 @@ void *erloju(void *arg)
     while(1)
     {
         erloju_tick++;
-        if(abisu != 0){
-            hariak_eguneratu(); //PCB-en exekuzio denbora gutxitu
-        }
+        hariak_eguneratu();
         if (erloju_tick == maiztasuna)
         {
             //pthread_mutex_lock(&mutex1);
@@ -129,17 +126,10 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    if(ilara_hasieratu(&pcb_ilara_nagusia) == 1)
-    {
-        printf("(MAIN) Errorea pcb_ilara_nagusia sortzean\n");
-        return 1;
-    }
-
-    if(ilara_hasieratu(&finished_ilara) == 1)
-    {
-        printf("(MAIN) Errorea finished_ilara sortzean\n");
-        return 1;
-    }
+    ilara_hasieratu(&pcb_ilara_0);
+    ilara_hasieratu(&pcb_ilara_1);
+    ilara_hasieratu(&pcb_ilara_2);
+    ilara_hasieratu(&pcb_ilara_finished);
 
     pthread_create(&p1,NULL,erloju,(void*)&argClock);
     usleep(100);

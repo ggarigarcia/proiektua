@@ -3,6 +3,13 @@
 
 #include "prozesu-sortzaile.h"
 
+/* DEFINEAK */
+#define FCFS 0
+#define SJF 1
+#define RR 2
+
+#define QUANTUM 5
+
 /* METODOAK */
 void hariak_eguneratu();
 int haria_esleitu(pcb_ilara *ilara);

@@ -18,6 +18,7 @@ typedef struct{
     int egoera; //0: NEW, 1: READY, 2: RUNNING, 3: WAITING, 4: EXIT
     int prioritatea;
     int exek_denb;
+    int quantum;
 } pcb_info;
 typedef struct pcb{
     pcb_info *info;
@@ -25,11 +26,6 @@ typedef struct pcb{
 } pcb;
 
 /* ILARA */
-
-/* politikak */
-#define FCFS 0
-#define SJF 1
-//#define RR 2
 typedef struct{
     pcb *head;
     pcb *tail;
