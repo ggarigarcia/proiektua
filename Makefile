@@ -16,7 +16,7 @@ $(OBJDIR)/%.o: src/%.c #.o bakoitza bere .c-a aldatzean birkonpilatu
 	$(CC) $(CFLAGS) -c $< -o $@
 
 run: $(BIN)
-	./$(BIN) 10 1 1 2 2 2 0
+	./$(BIN) 10 1 1 2 2 2 2
 
 debug: $(BIN)
 	gdb ./$(BIN)

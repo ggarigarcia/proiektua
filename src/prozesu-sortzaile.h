@@ -6,16 +6,14 @@
 /* EGITURAK */
 
 /* PCB */
-
-/* egoerak */
+/* PCB egoerak */
 #define NEW 0
 #define READY 1
 #define RUNNING 2
-#define WAITING 3
-#define EXIT 4
+#define FINISHED 3
 typedef struct{
     int id;
-    int egoera; //0: NEW, 1: READY, 2: RUNNING, 3: WAITING, 4: EXIT
+    int egoera;
     int prioritatea;
     int exek_denb;
     int quantum;
@@ -32,13 +30,18 @@ typedef struct{
 } pcb_ilara;
 
 /* FUNTZIOAK */
-
 pcb *pcb_sortu(int id);
-void ilaran_gehitu(pcb_ilara *ilara, pcb *pcb);
+void ilaran_gehitu(pcb_ilara *ilara, pcb *pcb, int egoera);
 pcb *ilaratik_atera(pcb_ilara *ilara);
+
 int ilara_hasieratu(pcb_ilara **ilara);
 int ilara_ezabatu(pcb_ilara **ilara);
-int ilara_pantailaratu(pcb_ilara *ilara);
+
+int pcb_ilara_array_hasieratu();
+void pcb_ilara_array_ezabatu();
+
+void ilara_pantailaratu(pcb_ilara *ilara);
+void ilarak_pantailaratu();
 
 void timer_proc_amaitu();
 void *timer_proc(void *arg);

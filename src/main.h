@@ -29,6 +29,7 @@ typedef struct{
 /* METODOAK */
 int makina_hasieratu(uint cpu_kop, uint core_kop, uint hari_kop);
 void makina_bukatu();
+
 void *erloju(void *arg);
 
 #endif //MAIN

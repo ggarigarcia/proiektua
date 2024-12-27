@@ -9,6 +9,7 @@
 
 /* ALDAGAI GLOBALAK */
 pcb_ilara *pcb_ilara_0, *pcb_ilara_1, *pcb_ilara_2, *pcb_ilara_finished;
+pcb_ilara *pcb_ilara_array[4];
 extern int politika;
 
 pthread_mutex_t mutex1;
@@ -69,7 +70,8 @@ void *erloju(void *arg)
     while(1)
     {
         erloju_tick++;
-        hariak_eguneratu();
+        if(abisu > 0) hariak_eguneratu();
+
         if (erloju_tick == maiztasuna)
         {
             //pthread_mutex_lock(&mutex1);
@@ -120,21 +122,13 @@ int main(int argc, char *argv[])
     uint hari_kop = atoi(argv[6]);
     politika = atoi(argv[7]);
 
-    if(makina_hasieratu(cpu_kop,core_kop,hari_kop) != 0)
-    {
-        printf("(MAIN) Errorea makina sortzean\n");
-        return 1;
-    }
+    makina_hasieratu(cpu_kop,core_kop,hari_kop);
+    pcb_ilara_array_hasieratu();
 
-    printf("CLOCK: %d \nSCHED: %d \nPROC: %d \ntotal_hari_kop %d \nPOLITIKA %d\n", atoi(argv[1]),atoi(argv[2]),atoi(argv[3]),makina->total_hari_kop,politika);
-
-    ilara_hasieratu(&pcb_ilara_0);
-    ilara_hasieratu(&pcb_ilara_1);
-    ilara_hasieratu(&pcb_ilara_2);
-    ilara_hasieratu(&pcb_ilara_finished);
+    printf(" CLOCK: %d \n SCHED: %d \n PROC: %d \n TOTAL_HARI_KOP %d \n POLITIKA %d \n QUANTUM %d \n", atoi(argv[1]),atoi(argv[2]),atoi(argv[3]),makina->total_hari_kop,politika,QUANTUM);
 
     pthread_create(&p1,NULL,erloju,(void*)&argClock);
-    usleep(100);
+    usleep(1000);
     pthread_create(&p2,NULL,timer_sched,(void*)&argT_sched);
     pthread_create(&p3,NULL,timer_proc,(void*)&argT_proc);
 
@@ -147,7 +141,8 @@ int main(int argc, char *argv[])
     /* KERNELA AMAITU */
     printf("\n\nSistema itzaltzen...\n");
     makina_bukatu();
-    //TODO agian hemen amaitu beste egitura batzuk (chequeatu dependentziak)
+    pcb_ilara_array_ezabatu();
+    //TODO hemen amaitu beste egitura batzuk?? (dependetziak kontrolatu)
 
     pthread_mutex_destroy(&mutex1);
     pthread_cond_destroy(&cond1);
