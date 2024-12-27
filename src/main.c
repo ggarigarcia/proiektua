@@ -126,6 +126,8 @@ int main(int argc, char *argv[])
         return 1;
     }
 
+    printf("CLOCK: %d \nSCHED: %d \nPROC: %d \ntotal_hari_kop %d \nPOLITIKA %d\n", atoi(argv[1]),atoi(argv[2]),atoi(argv[3]),makina->total_hari_kop,politika);
+
     ilara_hasieratu(&pcb_ilara_0);
     ilara_hasieratu(&pcb_ilara_1);
     ilara_hasieratu(&pcb_ilara_2);

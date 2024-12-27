@@ -31,8 +31,8 @@ void hariak_eguneratu()
                 (*uneko_exek_denb)--;
 
 
-                //if(politika = RR)
-                //{
+                if(politika = RR)
+                {
                     uneko_quantum = &(makina->hariak[i].uneko_pcb->info->quantum);
                     (*uneko_quantum)--;
 
@@ -46,7 +46,7 @@ void hariak_eguneratu()
                         //TODO pixkanakako degradazioa, quantuma handituz
                         
                     }
-                //}
+                }
                 
             } else{ //dispatcher
                 haritik_atera(i,makina->hariak[i].uneko_pcb,pcb_ilara_finished);
@@ -73,7 +73,7 @@ int haria_esleitu(pcb_ilara *ilara)
             {
                 makina->hariak[i].uneko_pcb = pcb;
                 makina->harimap[i] = 1;
-                printf("--(DISP) %d Haria: PCB %d sartu da\n",i,pcb->info->id);
+                //printf("--(DISP) %d Haria: PCB %d sartu da\n",i,pcb->info->id);
                 return 0;
             } else{
                 //printf("--(DISP) Warning: ez dago PCB-rik ilaran\n");
