@@ -5,6 +5,7 @@
 #include "scheduler.h"
 #include "main.h"
 
+/* ------------------ALDAGAIAK------------------ */
 extern pthread_mutex_t mutex1;
 extern pthread_cond_t cond1, cond2;
 
@@ -13,12 +14,12 @@ extern uint done, abisu;
 
 extern int politika;
 extern pcb_ilara *pcb_ilara_0, *pcb_ilara_1, *pcb_ilara_2, *pcb_ilara_finished;
-extern pcb_ilara *pcb_ilara_array[4];
+extern pcb_ilara *pcb_ilara_array[TOTAL_PCB_ILARA];
 
 uint pcb_kont; //PCB-en id-ak esleitzeko
 
-/* FUNTZIOAK */
-
+/* ------------------METODOAK------------------ */
+/* PCB */
 pcb *pcb_sortu(int id)
 {
     pcb *pcb_berri = malloc(sizeof(pcb));
@@ -75,12 +76,11 @@ pcb *ilaratik_atera(pcb_ilara *ilara)
     return pcb;
 }
 
+/* ILARA */
 int ilara_hasieratu(pcb_ilara **ilara)
 {
     *ilara = malloc(sizeof(pcb_ilara));
-    if (*ilara == NULL) {
-        return 1;
-    }
+    if (*ilara == NULL) return 1;
 
     (*ilara)->head = NULL;
     (*ilara)->tail = NULL;
@@ -107,6 +107,20 @@ int ilara_ezabatu(pcb_ilara **ilara)
     return 0;
 }
 
+void ilara_pantailaratu(pcb_ilara *ilara)
+{
+    pcb *current = ilara->head;
+
+    while(current != NULL)
+    {
+        printf(" - PCB %d, exek_denb: %d\n",current->info->id,current->info->exek_denb);
+        current = (pcb *) current->hurrengoa;
+    }
+
+    return;
+}
+
+/* ILARA_ARRAY */
 int pcb_ilara_array_hasieratu()
 {
     ilara_hasieratu(&pcb_ilara_0);
@@ -122,7 +136,7 @@ int pcb_ilara_array_hasieratu()
     return 0; //error check??
 }
 
-void pcb_ilara_array_ezabatu()
+void pcb_ilara_array_amaitu()
 {
     ilara_ezabatu(&pcb_ilara_0);
     ilara_ezabatu(&pcb_ilara_1);
@@ -132,27 +146,15 @@ void pcb_ilara_array_ezabatu()
     return;
 }
 
-void ilara_pantailaratu(pcb_ilara *ilara)
-{
-    pcb *current = ilara->head;
-
-    while(current != NULL)
-    {
-        printf(" - PCB %d, exek_denb: %d\n",current->info->id,current->info->exek_denb);
-        current = (pcb *) current->hurrengoa;
-    }
-
-    return;
-}
-
-//finished ezik beste ilara guztiak
 void ilarak_pantailaratu()
 {
-    for (int i = 0; i < 3; i++) ilara_pantailaratu(pcb_ilara_array[i]);
+    //finished ezik, beste ilara guztiak
+    for (int i = 0; i < TOTAL_PCB_ILARA-1; i++) ilara_pantailaratu(pcb_ilara_array[i]);
 
     return;
 }
 
+/* TIMER_PROC */
 void timer_proc_amaitu()
 {
     printf("\n\n-(PROC) Amaitu gabeko prozesuak:\n");

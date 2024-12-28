@@ -1,12 +1,9 @@
 #ifndef PROZESU_SORTZAILE
 #define PROZESU_SORTZAILE
 
-
-
-/* EGITURAK */
+/* ------------------DATU EGITURAK------------------ */
 
 /* PCB */
-/* PCB egoerak */
 #define NEW 0
 #define READY 1
 #define RUNNING 2
@@ -29,20 +26,24 @@ typedef struct{
     pcb *tail;
 } pcb_ilara;
 
-/* FUNTZIOAK */
+/* ------------------METODOAK------------------ */
+
+/* PCB */
 pcb *pcb_sortu(int id);
 void ilaran_gehitu(pcb_ilara *ilara, pcb *pcb, int egoera);
 pcb *ilaratik_atera(pcb_ilara *ilara);
 
+/* ILARA */
 int ilara_hasieratu(pcb_ilara **ilara);
 int ilara_ezabatu(pcb_ilara **ilara);
-
-int pcb_ilara_array_hasieratu();
-void pcb_ilara_array_ezabatu();
-
 void ilara_pantailaratu(pcb_ilara *ilara);
+
+/* ILARA_ARRAY */
+int pcb_ilara_array_hasieratu(); //main funtzioan
+void pcb_ilara_array_amaitu(); //main funtzioan
 void ilarak_pantailaratu();
 
+/* TIMER_PROC */
 void timer_proc_amaitu();
 void *timer_proc(void *arg);
 

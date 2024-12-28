@@ -1,4 +1,3 @@
-/* INCLUDEAK */
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -7,20 +6,20 @@
 #include "scheduler.h"
 #include "prozesu-sortzaile.h"
 
-/* ALDAGAI GLOBALAK */
-pcb_ilara *pcb_ilara_0, *pcb_ilara_1, *pcb_ilara_2, *pcb_ilara_finished;
-pcb_ilara *pcb_ilara_array[4];
-extern int politika;
-
-pthread_mutex_t mutex1;
-pthread_cond_t cond1,cond2;
-
-uint done;
-uint abisu; //TTL-rekin lotuta
-
+/* ------------------ALDAGAIAK------------------ */
 machine *makina;
 
-/* FUNTZIOAK */
+int politika;
+pcb_ilara *pcb_ilara_0, *pcb_ilara_1, *pcb_ilara_2, *pcb_ilara_finished;
+pcb_ilara *pcb_ilara_array[TOTAL_PCB_ILARA];
+
+pthread_mutex_t mutex1;
+pthread_cond_t cond1, cond2;
+
+uint done, abisu; // abisu <-> TTL
+
+/* ------------------METODOAK------------------ */
+/* MAKINA */
 int makina_hasieratu(uint cpu_kop, uint core_kop, uint hari_kop)
 {
     makina = malloc(sizeof(machine));
@@ -59,6 +58,7 @@ void makina_bukatu()
     return;
 }
 
+/* ERLOJU */
 void *erloju(void *arg)
 {    
     pthread_mutex_lock(&mutex1);
@@ -95,17 +95,13 @@ void *erloju(void *arg)
     }
 }
 
-/* MAIN */
+/* ------------------MAIN------------------ */
 int main(int argc, char *argv[])
 {
     /* argumentu egiaztapena */
-    if(argc < 8)
-    {
-        printf("\n%s <clock_maizt> <sched_maizt> <proc_maizt> <cpu_kop> <core_kop> <hari_kop> <sched_politika>\n",argv[0]);
-        return 1;
-    }
+    if(argc < 8){printf("\n%s <clock_maizt> <sched_maizt> <proc_maizt> <cpu_kop> <core_kop> <hari_kop> <sched_politika>\n", argv[0]); return 1;}
 
-    /* KERNELA MARTXAN JARRI */
+    /* KERNELA HASIERATU */
     printf("\nSistema martxan jartzen...\n");
 
     pthread_mutex_init(&mutex1,NULL);
@@ -138,11 +134,12 @@ int main(int argc, char *argv[])
     pthread_join(p2,NULL); 
     pthread_join(p3,NULL); 
 
+    /* ----------------------------------------------- */
+
     /* KERNELA AMAITU */
     printf("\n\nSistema itzaltzen...\n");
     makina_bukatu();
-    pcb_ilara_array_ezabatu();
-    //TODO hemen amaitu beste egitura batzuk?? (dependetziak kontrolatu)
+    pcb_ilara_array_amaitu();
 
     pthread_mutex_destroy(&mutex1);
     pthread_cond_destroy(&cond1);
