@@ -8,8 +8,6 @@
 #define TENP_KOP 2
 #define TTL 10 // TTL <-> abisu
 
-#define TOTAL_PCB_ILARA 3 // 0..n, while guztietan -1 egin, finished_ilara ez atzitzeko
-
 typedef unsigned int uint; // 0-tik 4294967295-erako balioak
 
 /* TIMER */

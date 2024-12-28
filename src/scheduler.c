@@ -14,7 +14,7 @@ extern uint done, abisu;
 
 extern int politika; 
 extern pcb_ilara *pcb_ilara_0, *pcb_ilara_1, *pcb_ilara_2, *pcb_ilara_finished;
-extern pcb_ilara *pcb_ilara_array[TOTAL_PCB_ILARA];
+//extern pcb_ilara *pcb_ilara_array[TOTAL_PCB_ILARA];
 
 /* ------------------METODOAK------------------ */
 /* HARIAK */
@@ -36,7 +36,7 @@ void hariak_eguneratu()
             } else{ // exek_denb = 0 -> DISPATCHER
 
                 haritik_atera(i, pcb_ilara_finished, FINISHED);
-                haria_esleitu(pcb_ilara_0);
+                haria_esleitu();
             }
 
             uneko_exek_denb = NULL;
@@ -68,7 +68,7 @@ void hariak_pantailaratu()
 }
 
 /* DISPATCHER */
-int haria_esleitu(pcb_ilara *ilara)
+int haria_esleitu()
 {
     pcb *nire_pcb;
 
@@ -77,7 +77,7 @@ int haria_esleitu(pcb_ilara *ilara)
     {
         if(makina->harimap[i] == 0) //aurkitua
         {
-            ilaretatik_atera();
+            nire_pcb = ilaretatik_atera();
 
             if(nire_pcb != NULL)
             {
@@ -107,9 +107,12 @@ int haria_esleitu(pcb_ilara *ilara)
 
 void haritik_atera(int hari_id, pcb_ilara *ilara, int egoera)
 {
-    ilaran_gehitu(ilara, makina->hariak[hari_id].uneko_pcb, egoera);
-
-    //TODO ilara anitzak
+    if(ilara == pcb_ilara_finished)
+    {
+        ilaran_gehitu(ilara, makina->hariak[hari_id].uneko_pcb, FINISHED);
+    } else {
+        ilaretan_gehitu(hari_id);
+    }
 
     if(politika < RR) printf("--(DISP) %d Haria: PCB %d OUT %d\n", hari_id, makina->hariak[hari_id].uneko_pcb->info->id, makina->hariak[hari_id].uneko_pcb->info->exek_denb);
 
@@ -121,15 +124,15 @@ void haritik_atera(int hari_id, pcb_ilara *ilara, int egoera)
 
 void round_robin(int hari_id)
 {
-    int *uneko_quantum = &(makina->hariak[hari_id].uneko_pcb->info->quantum);
+    int *uneko_quantum = &(makina->hariak[hari_id].uneko_pcb->info->quantum); 
 
     (*uneko_quantum)--;
 
     if(*uneko_quantum == 0)
     {
         *uneko_quantum = QUANTUM;
-        haritik_atera(hari_id, pcb_ilara_0, READY);
-        haria_esleitu(pcb_ilara_0);
+        haritik_atera(hari_id, NULL, READY);
+        haria_esleitu(NULL);
         
     }
 
@@ -209,7 +212,7 @@ void *timer_sched(void *arg)
             sched_tick = 0;
 
             ilara_ordenatu(pcb_ilara_0);
-            haria_esleitu(pcb_ilara_0);
+            haria_esleitu();
         }
         pthread_cond_signal(&cond1);
         pthread_cond_wait(&cond2,&mutex1);

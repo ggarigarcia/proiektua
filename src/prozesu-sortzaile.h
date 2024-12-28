@@ -20,6 +20,7 @@ typedef struct pcb{
 } pcb;
 
 /* ILARA */
+#define TOTAL_PCB_ILARA 2 // 0..n, while guztietan -1 egin, finished_ilara ez atzitzeko
 typedef struct{
     pcb *head;
     pcb *tail;
@@ -29,6 +30,7 @@ typedef struct{
 /* PCB */
 pcb *pcb_sortu(int id);
 void ilaran_gehitu(pcb_ilara *ilara, pcb *pcb, int egoera);
+void ilaretan_gehitu(int hari_id); //ilara anitzak
 pcb *ilaratik_atera(pcb_ilara *ilara);
 pcb *ilaretatik_atera(); //ilara anitzak
 
@@ -38,8 +40,8 @@ int ilara_ezabatu(pcb_ilara **ilara);
 void ilara_pantailaratu(pcb_ilara *ilara);
 
 /* ILARA_ARRAY */
-int pcb_ilara_array_hasieratu(); //main funtzioan
-void pcb_ilara_array_amaitu(); //main funtzioan
+int ilarak_hasieratu(); //main funtzioan
+void ilarak_amaitu(); //main funtzioan
 void ilarak_pantailaratu();
 
 /* TIMER_PROC */

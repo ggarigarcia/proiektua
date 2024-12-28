@@ -12,7 +12,7 @@
 #define RR_MA_DIN 4 // Maila Anitz, DINAMIKOA (degradazioa)
 
 
-#define QUANTUM 5
+#define QUANTUM 16
 
 /* ------------------METODOAK------------------ */
 /* HARIAK */
@@ -20,7 +20,7 @@ void hariak_eguneratu();
 void hariak_pantailaratu();
 
 /* DISPATCHER */
-int haria_esleitu(pcb_ilara *ilara);
+int haria_esleitu();
 void haritik_atera(int hari_id, pcb_ilara *ilara, int egoera);
 void round_robin(int hari_id);
 

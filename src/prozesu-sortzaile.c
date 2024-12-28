@@ -14,7 +14,7 @@ extern uint done, abisu;
 
 extern int politika;
 extern pcb_ilara *pcb_ilara_0, *pcb_ilara_1, *pcb_ilara_2, *pcb_ilara_finished;
-extern pcb_ilara *pcb_ilara_array[TOTAL_PCB_ILARA];
+//extern pcb_ilara *pcb_ilara_array[TOTAL_PCB_ILARA];
 
 uint pcb_kont; //PCB-en id-ak esleitzeko
 
@@ -58,12 +58,38 @@ void ilaran_gehitu(pcb_ilara *ilara, pcb *pcb, int egoera)
     return;
 }
 
-pcb *ilaratik_atera(pcb_ilara *ilara)
+void ilaretan_gehitu(int hari_id)
 {
-    if(ilara->head == NULL)
+    pcb *nire_pcb = makina->hariak[hari_id].uneko_pcb; 
+    int *prio = &(nire_pcb->info->prioritatea); 
+
+    //pixkanakako degradazioa, quantuma aldatu gabe
+    if(politika == RR_MA_DIN) (*prio)++;
+
+    switch (*prio)
     {
-        return NULL;
+        case 0:
+            ilaran_gehitu(pcb_ilara_0, nire_pcb, READY);
+            printf("PCB %d OUT ilara 0-ra\n", nire_pcb->info->id);
+            break;
+        case 1:
+            ilaran_gehitu(pcb_ilara_1, nire_pcb, READY);
+            printf("PCB %d OUT ilara 1-ra\n", nire_pcb->info->id);
+            break;
+        case 2:
+            ilaran_gehitu(pcb_ilara_2, nire_pcb, READY);
+            printf("PCB %d OUT ilara 2-ra\n", nire_pcb->info->id);
+            break;
+        default:
+            break;
     }
+
+    return;
+}
+
+pcb *ilaratik_atera(pcb_ilara *ilara) 
+{
+    if(ilara->head == NULL) return NULL;
 
     pcb *pcb = ilara->head;
     
@@ -76,16 +102,14 @@ pcb *ilaratik_atera(pcb_ilara *ilara)
     return pcb;
 }
 
-pcb *ilaretatik_atera() //if not RR halare erabili, 0 ilararekin jokatu (besteak hutsak)
+pcb *ilaretatik_atera() 
 {
+    //if not RR erabili HALARE, 0 ilararekin jokatu (besteak hutsak)
     pcb *nire_pcb = NULL;
 
-    int i = 0;
-    while(i < TOTAL_PCB_ILARA-1)
-    {
-        nire_pcb = ilaratik_atera(pcb_ilara_array[i]);
-        if(nire_pcb) return; //EZ da NULL
-    }
+    nire_pcb = ilaratik_atera(pcb_ilara_0);
+    if(nire_pcb == NULL) nire_pcb = ilaratik_atera(pcb_ilara_1);
+    if(nire_pcb == NULL) nire_pcb = ilaratik_atera(pcb_ilara_2);
 
     return nire_pcb;
 }
@@ -135,27 +159,21 @@ void ilara_pantailaratu(pcb_ilara *ilara)
 }
 
 /* ILARA_ARRAY */
-int pcb_ilara_array_hasieratu()
+ int ilarak_hasieratu()
 {
     ilara_hasieratu(&pcb_ilara_0);
     ilara_hasieratu(&pcb_ilara_1);
     ilara_hasieratu(&pcb_ilara_2);
     ilara_hasieratu(&pcb_ilara_finished);
 
-    pcb_ilara_array[0] = pcb_ilara_0;
-    pcb_ilara_array[1] = pcb_ilara_1;
-    pcb_ilara_array[2] = pcb_ilara_2;
-    pcb_ilara_array[3] = pcb_ilara_finished;
-
     return 0; //error check??
 }
 
-void pcb_ilara_array_amaitu()
+void ilarak_amaitu()
 {
     ilara_ezabatu(&pcb_ilara_0);
     ilara_ezabatu(&pcb_ilara_1);
     ilara_ezabatu(&pcb_ilara_2);
-    ilara_ezabatu(&pcb_ilara_finished);
 
     return;
 }
@@ -163,17 +181,19 @@ void pcb_ilara_array_amaitu()
 void ilarak_pantailaratu()
 {
     //finished ezik, beste ilara guztiak
-    for (int i = 0; i < TOTAL_PCB_ILARA-1; i++) ilara_pantailaratu(pcb_ilara_array[i]);
+    ilara_pantailaratu(pcb_ilara_0);
+    ilara_pantailaratu(pcb_ilara_1);
+    ilara_pantailaratu(pcb_ilara_2);
 
     return;
-}
+} 
 
 /* TIMER_PROC */
 void timer_proc_amaitu()
 {
     printf("\n\n-(PROC) Amaitu gabeko prozesuak:\n");
     ilarak_pantailaratu();
-    
+
     printf("\n-(PROC) Amaitutako prozesuak:\n");
     ilara_pantailaratu(pcb_ilara_finished);
 

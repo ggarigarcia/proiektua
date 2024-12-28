@@ -17,7 +17,7 @@ $(OBJDIR)/%.o: src/%.c #.o bakoitza bere .c-a aldatzean birkonpilatu
 
 # HAU ALDATU NAHI DEN BALIOAK SARTUZ
 run: $(BIN)
-	./$(BIN) 10 1 1 2 2 2 1
+	./$(BIN) 10 1 1 2 2 2 3
 
 debug: $(BIN)
 	gdb ./$(BIN)

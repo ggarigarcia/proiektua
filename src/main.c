@@ -10,8 +10,7 @@
 machine *makina;
 
 int politika;
-pcb_ilara *pcb_ilara_0, *pcb_ilara_1, *pcb_ilara_2, *pcb_ilara_finished;
-pcb_ilara *pcb_ilara_array[TOTAL_PCB_ILARA];
+pcb_ilara *pcb_ilara_0, *pcb_ilara_1, *pcb_ilara_2, *pcb_ilara_finished; 
 
 pthread_mutex_t mutex1;
 pthread_cond_t cond1, cond2;
@@ -67,6 +66,7 @@ void *erloju(void *arg)
     uint erloju_tick = 0;
     abisu = 0;
 
+
     while(1)
     {
         erloju_tick++;
@@ -80,6 +80,7 @@ void *erloju(void *arg)
             abisu++;
             printf("\n(MAIN) Abisu %d \n",abisu);  
             if(abisu == TTL){ //KERNELA AMAITU
+                printf("AMAIERA\n");
                 pthread_mutex_unlock(&mutex1);
                 return NULL;
             }
@@ -99,7 +100,7 @@ void *erloju(void *arg)
 int main(int argc, char *argv[])
 {
     /* argumentu egiaztapena */
-    if(argc < 8){printf("\n%s <clock_maizt> <sched_maizt> <proc_maizt> <cpu_kop> <core_kop> <hari_kop> <sched_politika>\n", argv[0]); return 1;}
+    if(argc < 8) {printf("\n%s <clock_maizt> <sched_maizt> <proc_maizt> <cpu_kop> <core_kop> <hari_kop> <sched_politika>\n", argv[0]); return 1;}
 
     /* KERNELA HASIERATU */
     printf("\nSistema martxan jartzen...\n");
@@ -119,7 +120,8 @@ int main(int argc, char *argv[])
     politika = atoi(argv[7]);
 
     makina_hasieratu(cpu_kop,core_kop,hari_kop);
-    pcb_ilara_array_hasieratu();
+    ilarak_hasieratu();
+
 
     printf(" CLOCK: %d \n SCHED: %d \n PROC: %d \n TOTAL_HARI_KOP %d \n POLITIKA %d \n QUANTUM %d \n", atoi(argv[1]),atoi(argv[2]),atoi(argv[3]),makina->total_hari_kop,politika,QUANTUM);
 
@@ -139,7 +141,7 @@ int main(int argc, char *argv[])
     /* KERNELA AMAITU */
     printf("\n\nSistema itzaltzen...\n");
     makina_bukatu();
-    pcb_ilara_array_amaitu();
+    ilarak_amaitu();
 
     pthread_mutex_destroy(&mutex1);
     pthread_cond_destroy(&cond1);
