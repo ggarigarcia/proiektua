@@ -1,27 +1,32 @@
 # KERNEL BATEN SIMULATZAILEA PROGRAMATZEN
+
 Gari Garcia Egiguren  
 Sistema Eragileak  
-2024-2025 ikasturtea   
+2024-2025 ikasturtea  
 
 ## 1. Sistemaren oinarria
-Zati honetan hari nagusia osatuko da hurrengo osagaiekin:
-- Sistemaren erlojua (clock)
-- Planifikatzailearen tenporizadorea
-- Prozesu sortzailearen tenporizadorea
-- Scheduler/Dispatcher-a  
 
-Horrez gain, hurrengo datu egiturak sortu ditugu:
-- Prozesuen ilara
-- CPU-ak, core-ak eta hardware hariak  
+Zati honetan sistemaren hari nagusia sortu beharko dugu, dagokioen egiturekin:  
 
-Programak honela funtzionatzen du:
+- Sistemaren erlojua + bi tenporizadore: scheduler eta prozesu sortzaile
+- Machine egitura, **n** hariz osatuta (n = cpu x core x hari_kop)
+- PCB eta PCB_ilara egiturak
+
+Programaren funtzionamendua:  
+
 1. Erlojuak sistema kontrolatuko duten tick-ak sortuko ditu
-2. Erlojuak maiztasun konkretu batekin abisu bat bidaliko die schedulerraren eta prozesu sortzailearen tenporizadoreei. Tenporizadoreek maiztasun konkretu batekin eragiketak egingo dituzte:
-    1. Schedulerrak ez du ezer egiten oraingoz
-    2. Prozesu sortzaileak prozesu berri bat sortuko du aldiro
-
+2. Tick maiztasun konkretu batekin abisu bat bidaliko die bi tenporizadoreei. Hauek dagokien maiztasunarekin hurrengoa egingo dute:  
+    - Scheduler: oraingoz ezer
+    - Prozesu-sortzaile: PCB berri bat sortu eta ilarara gehitu
 
 ## 2. Planifikatzailea (Scheduler/Dispatcher)
 
-## 3. Memoriaren kudeatzailea
+Zati honetan Schedulerra eta Dispatcherra sortuko dira:  
 
+- Sortutako PCB berriak makinako harietan exekutatuko dira, argumentuz pasatako politika erabiliz:  
+  - 0: First Come First Served
+  - 1: Shortest Job First
+  - 2: Round-Robin + Shortest Job First
+- Amaitutako prozesuak ilara desberdin batera gehituko dira
+
+## 3. Memoriaren kudeatzailea

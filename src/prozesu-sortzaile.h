@@ -2,7 +2,6 @@
 #define PROZESU_SORTZAILE
 
 /* ------------------DATU EGITURAK------------------ */
-
 /* PCB */
 #define NEW 0
 #define READY 1
@@ -27,11 +26,11 @@ typedef struct{
 } pcb_ilara;
 
 /* ------------------METODOAK------------------ */
-
 /* PCB */
 pcb *pcb_sortu(int id);
 void ilaran_gehitu(pcb_ilara *ilara, pcb *pcb, int egoera);
 pcb *ilaratik_atera(pcb_ilara *ilara);
+pcb *ilaretatik_atera(); //ilara anitzak
 
 /* ILARA */
 int ilara_hasieratu(pcb_ilara **ilara);

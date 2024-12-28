@@ -76,6 +76,20 @@ pcb *ilaratik_atera(pcb_ilara *ilara)
     return pcb;
 }
 
+pcb *ilaretatik_atera() //if not RR halare erabili, 0 ilararekin jokatu (besteak hutsak)
+{
+    pcb *nire_pcb = NULL;
+
+    int i = 0;
+    while(i < TOTAL_PCB_ILARA-1)
+    {
+        nire_pcb = ilaratik_atera(pcb_ilara_array[i]);
+        if(nire_pcb) return; //EZ da NULL
+    }
+
+    return nire_pcb;
+}
+
 /* ILARA */
 int ilara_hasieratu(pcb_ilara **ilara)
 {

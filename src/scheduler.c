@@ -70,12 +70,14 @@ void hariak_pantailaratu()
 /* DISPATCHER */
 int haria_esleitu(pcb_ilara *ilara)
 {
+    pcb *nire_pcb;
+
     int i = 0;
     while(i < makina->total_hari_kop)
     {
         if(makina->harimap[i] == 0) //aurkitua
         {
-            pcb *nire_pcb = ilaratik_atera(ilara);
+            ilaretatik_atera();
 
             if(nire_pcb != NULL)
             {
