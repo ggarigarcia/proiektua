@@ -201,7 +201,18 @@ void timer_proc_amaitu()
     return;
 }
 
-void *timer_proc(void *arg)
+void loader(){
+    pcb *pcb_berri = pcb_sortu(pcb_kont); //TODO datu egitura berriak hasieratu
+    //(PHYSICAL MEMORY-n)
+        //orri taula sortu, helbidea = PGB
+        //fitxategiti batetik kodea eta datuak kargatu eta memorian kopiatu
+    ilaran_gehitu(pcb_ilara_0,pcb_berri, NEW);
+    printf("-(\033[43mPROC\033[0m) PCB berria: id = %d, exek_denb = %d\n", pcb_berri->info->id, pcb_berri->info->exek_denb);  
+
+    return;
+}
+
+void *timer_proc(void *arg) //LOADER
 {
     timerArgs* t_args = (timerArgs*) arg;
     uint maiztasuna = t_args->maiztasuna;
@@ -229,10 +240,7 @@ void *timer_proc(void *arg)
         if(proc_tick == maiztasuna)
         {
             proc_tick = 0;
-
-            pcb *pcb_berri = pcb_sortu(pcb_kont);
-            ilaran_gehitu(pcb_ilara_0,pcb_berri, NEW);
-            printf("-(\033[43mPROC\033[0m) PCB berria: id = %d, exek_denb = %d\n", pcb_berri->info->id, pcb_berri->info->exek_denb);  
+            loader();
         }
         pthread_cond_signal(&cond1);
         pthread_cond_wait(&cond2,&mutex1);

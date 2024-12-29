@@ -26,14 +26,18 @@ int makina_hasieratu(uint cpu_kop, uint core_kop, uint hari_kop)
     
     makina->total_hari_kop = cpu_kop * core_kop * hari_kop;
 
-    //bitmap
-    makina->harimap = malloc(makina->total_hari_kop * sizeof(uint));
-    if(makina->harimap == NULL) return 1;
-    
+    //memoria fisikoa
+        //TODO nola implementatu zerbait al que se le meten cosas en diferentes sitios y diferentes tamaños??
+
+    //hariak
     makina->hariak = malloc(makina->total_hari_kop * sizeof(hari));
     if(makina->hariak == NULL) return 1;
 
-    //bitmapa + hari bakoitza hasieratu
+    //harimap
+    makina->harimap = malloc(makina->total_hari_kop * sizeof(uint));
+    if(makina->harimap == NULL) return 1;
+    
+    //hari bakoitza + harimap hasieratu
     for(int i = 0; i < makina->total_hari_kop; i++)
     {
         makina->hariak[i].id = i;
@@ -118,9 +122,8 @@ int main(int argc, char *argv[])
     uint hari_kop = atoi(argv[6]);
     politika = atoi(argv[7]);
 
-    makina_hasieratu(cpu_kop,core_kop,hari_kop);
+    makina_hasieratu(cpu_kop,core_kop,hari_kop); //TODO INIT physical_memory
     ilarak_hasieratu();
-
 
     //printf(" CLOCK: %d \n SCHED: %d \n PROC: %d \n TOTAL_HARI_KOP %d \n POLITIKA %d \n\n QUANTUM %d \n", atoi(argv[1]),atoi(argv[2]),atoi(argv[3]),makina->total_hari_kop,politika,QUANTUM);
 

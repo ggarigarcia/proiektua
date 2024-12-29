@@ -20,7 +20,19 @@ typedef struct{
 typedef struct{
     uint id;
     pcb *uneko_pcb;
+    //mmu
+    //tlb
+    //ptbr //pable table base register
+    //ir //instruction register
+    //pc //program counter
 } hari;
+
+/*
+typedef struct{
+    //24 biteko helbide busa
+    //32 biteko datu-busa
+} physical_memory;
+*/
 
 typedef struct{
     uint total_hari_kop; //cpu_kop * core_kop * hari_kop

@@ -17,6 +17,9 @@ typedef struct{
 typedef struct pcb{
     pcb_info *info;
     struct pcb *hurrengoa;
+    //pgb //orri taularen helbide FISIKOA
+    //code //kodearen segmentuaren helbide BIRTUALA
+    //data //datuen segmentuaren helbide BIRTUALA
 } pcb;
 
 /* ILARA */
