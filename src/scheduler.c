@@ -5,16 +5,18 @@
 #include "main.h"
 #include "prozesu-sortzaile.h"
 
+/* ------------------ALDAGAIAK------------------ */
 extern pthread_mutex_t mutex1;
-extern pthread_cond_t cond1,cond2;
+extern pthread_cond_t cond1, cond2;
 
-extern uint done,abisu;
 extern machine *makina;
-extern pcb_ilara *pcb_ilara_nagusia, *finished_ilara;
+extern uint done, abisu;
 
-int politika; //FCFS, SJF, RR
+extern int politika; 
+extern pcb_ilara *pcb_ilara_0, *pcb_ilara_1, *pcb_ilara_2, *pcb_ilara_finished;
 
-/* METODOAK */
+/* ------------------METODOAK------------------ */
+/* HARIAK */
 void hariak_eguneratu()
 {
     uint *uneko_exek_denb = NULL;
@@ -25,60 +27,25 @@ void hariak_eguneratu()
         if(makina->harimap[i] == 1) //okupatuta
         {
             uneko_exek_denb = &(makina->hariak[i].uneko_pcb->info->exek_denb);
-            if(*uneko_exek_denb > 0) //jarraitu exek_denb kentzen
+            if(*uneko_exek_denb > 0) // exekuzio-denbora kendu
             {
                 (*uneko_exek_denb)--;
-                
-            } else{ //dispatcher
-                haritik_atera(i,makina->hariak[i].uneko_pcb,finished_ilara);
-                haria_esleitu(pcb_ilara_nagusia);
+
+                if(*uneko_exek_denb != 0 && politika >= RR) round_robin(i); //ELSE: bukatu arte mantendu harian    
             }
+
+            if(*uneko_exek_denb == 0) // DISPATCHER
+            { 
+                haritik_atera(i, pcb_ilara_finished, FINISHED);
+                haria_esleitu();
+            }
+
+            uneko_exek_denb = NULL;
         }
+
         i++;
     }  
     
-    return;
-}
-
-int haria_esleitu(pcb_ilara *ilara)
-{
-    int i = 0;
-    while(i < makina->total_hari_kop)
-    {
-        if(makina->harimap[i] == 0) //haria libre dago
-        {
-            pcb *pcb = ilaratik_atera(ilara);
-            if(pcb != NULL)
-            {
-                makina->hariak[i].uneko_pcb = pcb;
-                makina->harimap[i] = 1;
-                printf("--(DISP) %d Haria: PCB %d sartu da\n",i,pcb->info->id);
-                return 0;
-            } else{
-                //printf("--(DISP) Warning: ez dago PCB-rik ilaran\n");
-                return 1;
-            }
-        }
-        i++;
-    }
-
-    if(i == makina->total_hari_kop)
-    {
-        printf("--(DISP) Warning: ez dago haririk libre\n");
-        return 2; 
-    }
-
-    return 0;
-}
-
-void haritik_atera(int hari_id, pcb *pcb, pcb_ilara *ilara)
-{
-    ilaran_gehitu(ilara,pcb);
-    makina->harimap[hari_id] = 0;
-    makina->hariak[hari_id].uneko_pcb = NULL;
-
-    printf("--(DISP) %d Haria: %d PCB-a atera da\n", hari_id, pcb->info->id);
-
     return;
 }
 
@@ -88,7 +55,7 @@ void hariak_pantailaratu()
     {
         if(makina->harimap[i] == 1) //okupatuta
         {
-            printf(" - PCB: id = %d, exek_denb = %d\n",makina->hariak[i].uneko_pcb->info->id, makina->hariak[i].uneko_pcb->info->exek_denb);
+            printf(" - PCB: id = %d, exek_denb = %d\n", makina->hariak[i].uneko_pcb->info->id, makina->hariak[i].uneko_pcb->info->exek_denb);
 
             //PCB-a ezabatu
             free(makina->hariak[i].uneko_pcb->info);
@@ -101,6 +68,83 @@ void hariak_pantailaratu()
     return;
 }
 
+/* DISPATCHER */
+int haria_esleitu()
+{
+    pcb *nire_pcb;
+
+    int i = 0;
+    while(i < makina->total_hari_kop)
+    {
+        if(makina->harimap[i] == 0) //aurkitua
+        {
+            nire_pcb = ilaretatik_atera(); //TODO ilara ordenatu nunbait, sartu ondoren/ atera baino lehen
+
+            if(nire_pcb != NULL)
+            {
+                makina->hariak[i].uneko_pcb = nire_pcb;
+                makina->harimap[i] = 1;
+                nire_pcb->info->egoera = RUNNING;
+
+                printf("--(DISP) %d Haria: PCB %d IN %d\n", i, nire_pcb->info->id, nire_pcb->info->exek_denb);
+                return 0;
+            } else{
+                //printf("--(DISP) Warning: ez dago PCB-rik ilaran\n");
+                return 1;
+            }
+        }
+
+        i++;
+    }
+
+    if(i == makina->total_hari_kop)
+    {
+        printf("--(DISP) Warning: ez dago haririk libre\n");
+        return 2; 
+    }
+
+    return 0;
+}
+
+void haritik_atera(int hari_id, pcb_ilara *ilara, int egoera)
+{
+    if(ilara == pcb_ilara_finished)
+    {
+        ilaran_gehitu(ilara, makina->hariak[hari_id].uneko_pcb, FINISHED);
+    } else {
+        ilaretan_gehitu(hari_id);
+    }
+
+    if(politika < RR) printf("--(DISP) %d Haria: PCB %d OUT %d\n", hari_id, makina->hariak[hari_id].uneko_pcb->info->id, makina->hariak[hari_id].uneko_pcb->info->exek_denb);
+
+    makina->harimap[hari_id] = 0;
+    makina->hariak[hari_id].uneko_pcb = NULL;
+
+    return;
+}
+
+void round_robin(int hari_id)
+{
+    int *uneko_quantum = &(makina->hariak[hari_id].uneko_pcb->info->quantum); 
+
+    (*uneko_quantum)--;
+
+    if(*uneko_quantum == 0)
+    {
+        *uneko_quantum = QUANTUM; //quantum-a reiniziatu
+        
+        if(makina->hariak[hari_id].uneko_pcb->info->exek_denb != 0) // 0 bada beste metodoak kanporatuko du
+        {
+            haritik_atera(hari_id, NULL, READY);
+            haria_esleitu(NULL);
+        }
+        
+    }
+
+    return;
+}
+
+/* SCHEDULER */
 int shortest_job_first(pcb_ilara *ilara)
 {
     if (ilara == NULL || ilara->head == NULL) return 1; 
@@ -131,26 +175,22 @@ int shortest_job_first(pcb_ilara *ilara)
     return 0;
 }
 
-
-//TODO mutex bat jarri??
-int ilara_ordenatu(pcb_ilara *ilara)
+void ilara_ordenatu(pcb_ilara *ilara)
 {
     switch(politika)
     {
-        case FCFS:
-            break;
         case SJF:
+        //case RR_SJF: 
             shortest_job_first(ilara);
             break;
-        default:
-            printf("--(SCHED) Warning: hautatutako politika ez da existitzen\n");
-            return 1;
+        default: //FCFS, RR
             break;
     }
 
-    return 0;
+    return;
 }
 
+/* TIMER SCHED */
 void *timer_sched(void *arg)
 {
     timerArgs* t_args = (timerArgs*) arg;
@@ -176,11 +216,10 @@ void *timer_sched(void *arg)
         {
             sched_tick = 0;
 
-            ilara_ordenatu(pcb_ilara_nagusia);
-            haria_esleitu(pcb_ilara_nagusia);
+            ilara_ordenatu(pcb_ilara_0);
+            haria_esleitu();
         }
         pthread_cond_signal(&cond1);
-        
         pthread_cond_wait(&cond2,&mutex1);
     }
 }

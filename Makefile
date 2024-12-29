@@ -1,6 +1,7 @@
 CC = gcc
-CFLAGS = -g #include direktorioa espezifikatu, konpilazio informazioa lortu
+CFLAGS = -g 
 SRC = $(wildcard src/*.c) 
+HDR = $(wildcard src/*.h)
 OBJDIR = obj
 OBJ = $(SRC:src/%.c=$(OBJDIR)/%.o) #.c fitxategien .o bertsioak
 BINDIR = bin
@@ -9,14 +10,15 @@ BIN = $(BINDIR)/kernel
 #default
 all: $(OBJDIR) $(BIN)
 
-$(BIN): $(OBJ) #bin birkonpilatu egingo da OBJ lista aldatzen bada:
+$(BIN): $(OBJ) #bin birkonpilatu egingo da OBJ aldatzen bada:
 	$(CC) $(OBJ) -o $(BIN)
 
-$(OBJDIR)/%.o: src/%.c #.o bakoitza bere .c-a aldatzean birkonpilatu
+$(OBJDIR)/%.o: src/%.c $(HDR) #.o bakoitza bere .c-a (edo .h) aldatzean birkonpilatu
 	$(CC) $(CFLAGS) -c $< -o $@
 
+# HAU ALDATU NAHI DEN BALIOAK SARTUZ
 run: $(BIN)
-	./$(BIN) 100 1 1 2 2 2 1
+	./$(BIN) 10 1 1 2 2 2 1 20
 
 debug: $(BIN)
 	gdb ./$(BIN)

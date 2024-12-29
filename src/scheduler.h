@@ -3,15 +3,32 @@
 
 #include "prozesu-sortzaile.h"
 
-/* METODOAK */
+/* ------------------DEFINEAK------------------ */
+#define FCFS 0
+#define SJF 1
+#define RR 2 // RR FCFS
+
+#define RR_MA_EST 3 // Maila Anitz, ESTATIKOA
+#define RR_MA_DIN 4 // Maila Anitz, DINAMIKOA (degradazioa)
+
+
+#define QUANTUM 5
+
+/* ------------------METODOAK------------------ */
+/* HARIAK */
 void hariak_eguneratu();
-int haria_esleitu(pcb_ilara *ilara);
-void haritik_atera(int hari_id, pcb *pcb, pcb_ilara *ilara); //dispatcherra, como tal
 void hariak_pantailaratu();
 
-int shortest_job_first(pcb_ilara *ilara);
-int ilara_ordenatu(pcb_ilara *ilara); //schedulerra, como tal
+/* DISPATCHER */
+int haria_esleitu();
+void haritik_atera(int hari_id, pcb_ilara *ilara, int egoera);
+void round_robin(int hari_id);
 
+/* SCHEDULER */
+int shortest_job_first(pcb_ilara *ilara);
+void ilara_ordenatu(pcb_ilara *ilara); 
+
+/* TIMER_SCHED */
 void *timer_sched(void *arg);
 
 #endif //SCHEDULER
