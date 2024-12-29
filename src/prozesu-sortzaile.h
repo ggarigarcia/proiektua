@@ -28,7 +28,7 @@ typedef struct{
 
 /* ------------------METODOAK------------------ */
 /* PCB */
-pcb *pcb_sortu(int id);
+pcb *pcb_sortu();
 void ilaran_gehitu(pcb_ilara *ilara, pcb *pcb, int egoera);
 void ilaretan_gehitu(int hari_id); //ilara anitzak
 pcb *ilaratik_atera(pcb_ilara *ilara);

@@ -6,13 +6,14 @@
 
 /* ------------------DATU EGITURAK------------------ */
 #define TENP_KOP 2
-#define TTL 10 // TTL <-> abisu
+#define TTL 20 // TTL <-> abisu
 
 typedef unsigned int uint; // 0-tik 4294967295-erako balioak
 
 /* TIMER */
 typedef struct{
     uint maiztasuna;
+    uint arg1;
 } timerArgs;
 
 /* MACHINE */

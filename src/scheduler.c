@@ -14,7 +14,6 @@ extern uint done, abisu;
 
 extern int politika; 
 extern pcb_ilara *pcb_ilara_0, *pcb_ilara_1, *pcb_ilara_2, *pcb_ilara_finished;
-//extern pcb_ilara *pcb_ilara_array[TOTAL_PCB_ILARA];
 
 /* ------------------METODOAK------------------ */
 /* HARIAK */
@@ -31,10 +30,12 @@ void hariak_eguneratu()
             if(*uneko_exek_denb > 0) // exekuzio-denbora kendu
             {
                 (*uneko_exek_denb)--;
-                if(politika >= RR) round_robin(i); //ELSE: bukatu arte mantendu harian
-                
-            } else{ // exek_denb = 0 -> DISPATCHER
 
+                if(*uneko_exek_denb != 0 && politika >= RR) round_robin(i); //ELSE: bukatu arte mantendu harian    
+            }
+
+            if(*uneko_exek_denb == 0) // DISPATCHER
+            { 
                 haritik_atera(i, pcb_ilara_finished, FINISHED);
                 haria_esleitu();
             }
@@ -77,7 +78,7 @@ int haria_esleitu()
     {
         if(makina->harimap[i] == 0) //aurkitua
         {
-            nire_pcb = ilaretatik_atera();
+            nire_pcb = ilaretatik_atera(); //TODO ilara ordenatu nunbait, sartu ondoren/ atera baino lehen
 
             if(nire_pcb != NULL)
             {
@@ -130,9 +131,13 @@ void round_robin(int hari_id)
 
     if(*uneko_quantum == 0)
     {
-        *uneko_quantum = QUANTUM;
-        haritik_atera(hari_id, NULL, READY);
-        haria_esleitu(NULL);
+        *uneko_quantum = QUANTUM; //quantum-a reiniziatu
+        
+        if(makina->hariak[hari_id].uneko_pcb->info->exek_denb != 0) // 0 bada beste metodoak kanporatuko du
+        {
+            haritik_atera(hari_id, NULL, READY);
+            haria_esleitu(NULL);
+        }
         
     }
 

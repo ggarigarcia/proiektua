@@ -100,7 +100,7 @@ void *erloju(void *arg)
 int main(int argc, char *argv[])
 {
     /* argumentu egiaztapena */
-    if(argc < 8) {printf("\n%s <clock_maizt> <sched_maizt> <proc_maizt> <cpu_kop> <core_kop> <hari_kop> <sched_politika>\n", argv[0]); return 1;}
+    if(argc < 9) {printf("\n%s <clock_maizt> <sched_maizt> <proc_maizt> <cpu_kop> <core_kop> <hari_kop> <sched_politika> <proc_exek_denb_max>\n", argv[0]); return 1;}
 
     /* KERNELA HASIERATU */
     printf("\nSistema martxan jartzen...\n");
@@ -112,7 +112,7 @@ int main(int argc, char *argv[])
     pthread_t p1,p2,p3;
     timerArgs argClock = {atoi(argv[1])};
     timerArgs argT_sched = {atoi(argv[2])};
-    timerArgs argT_proc = {atoi(argv[3])};    
+    timerArgs argT_proc = {atoi(argv[3]), atoi(argv[8])};    
  
     uint cpu_kop = atoi(argv[4]);
     uint core_kop = atoi(argv[5]);
@@ -126,7 +126,7 @@ int main(int argc, char *argv[])
     printf(" CLOCK: %d \n SCHED: %d \n PROC: %d \n TOTAL_HARI_KOP %d \n POLITIKA %d \n QUANTUM %d \n", atoi(argv[1]),atoi(argv[2]),atoi(argv[3]),makina->total_hari_kop,politika,QUANTUM);
 
     pthread_create(&p1,NULL,erloju,(void*)&argClock);
-    usleep(1000);
+    usleep(1000); //TODO beste modu bat bilatu
     pthread_create(&p2,NULL,timer_sched,(void*)&argT_sched);
     pthread_create(&p3,NULL,timer_proc,(void*)&argT_proc);
 

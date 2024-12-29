@@ -14,13 +14,12 @@ extern uint done, abisu;
 
 extern int politika;
 extern pcb_ilara *pcb_ilara_0, *pcb_ilara_1, *pcb_ilara_2, *pcb_ilara_finished;
-//extern pcb_ilara *pcb_ilara_array[TOTAL_PCB_ILARA];
 
-uint pcb_kont; //PCB-en id-ak esleitzeko
+uint pcb_kont, proc_m_max; //PCB-en id-ak, maiztasun maximoa
 
 /* ------------------METODOAK------------------ */
 /* PCB */
-pcb *pcb_sortu(int id)
+pcb *pcb_sortu()
 {
     pcb *pcb_berri = malloc(sizeof(pcb));
     if (pcb_berri == NULL) return NULL;
@@ -31,10 +30,11 @@ pcb *pcb_sortu(int id)
         return NULL;
     }
 
-    pcb_berri->info->id = id;
+    pcb_berri->info->id = pcb_kont;
+    pcb_kont++;
     pcb_berri->info->egoera = NEW;
     pcb_berri->info->prioritatea = 0;
-    pcb_berri->info->exek_denb = 50 - pcb_kont; //TODO aldatu
+    pcb_berri->info->exek_denb = (rand() % proc_m_max) + 1;
     pcb_berri->info->quantum = QUANTUM;
 
     pcb_berri->hurrengoa = NULL;
@@ -63,24 +63,25 @@ void ilaretan_gehitu(int hari_id)
     pcb *nire_pcb = makina->hariak[hari_id].uneko_pcb; 
     int *prio = &(nire_pcb->info->prioritatea); 
 
-    //pixkanakako degradazioa, quantuma aldatu gabe
-    if(politika == RR_MA_DIN) (*prio)++;
+    //pixkanakako degradazioa, quantuma gehituz
+    if(politika == RR_MA_DIN){
+        (*prio)++;
+        makina->hariak[hari_id].uneko_pcb->info->quantum++;
+    }
 
     switch (*prio)
     {
         case 0:
             ilaran_gehitu(pcb_ilara_0, nire_pcb, READY);
-            printf("PCB %d OUT ilara 0-ra\n", nire_pcb->info->id);
+            printf("--(DISP) %d Haria: PCB %d OUT %d ilara 0-ra\n", nire_pcb->info->id);
             break;
         case 1:
             ilaran_gehitu(pcb_ilara_1, nire_pcb, READY);
-            printf("PCB %d OUT ilara 1-ra\n", nire_pcb->info->id);
+            printf("--(DISP) %d Haria: PCB %d OUT %d ilara 1-ra\n", nire_pcb->info->id);
             break;
-        case 2:
+        default: // prio >= 2 --> pcb_ilara_2
             ilaran_gehitu(pcb_ilara_2, nire_pcb, READY);
-            printf("PCB %d OUT ilara 2-ra\n", nire_pcb->info->id);
-            break;
-        default:
+            printf("--(DISP) %d Haria: PCB %d OUT %d ilara 2-ra\n", nire_pcb->info->id);
             break;
     }
 
@@ -94,10 +95,10 @@ pcb *ilaratik_atera(pcb_ilara *ilara)
     pcb *pcb = ilara->head;
     
     if(ilara->head == ilara->tail)
-    {
-        ilara->tail = NULL;
-    }
-    ilara->head = ilara->head->hurrengoa;
+        ilara->head = ilara->tail = NULL;
+    else 
+        ilara->head = ilara->head->hurrengoa;
+
 
     return pcb;
 }
@@ -204,7 +205,9 @@ void *timer_proc(void *arg)
 {
     timerArgs* t_args = (timerArgs*) arg;
     uint maiztasuna = t_args->maiztasuna;
+    proc_m_max = t_args->arg1;
     uint proc_tick = 0;
+    srand(time(NULL)); // PCB id-entzat
 
     pthread_mutex_lock(&mutex1);
 
@@ -228,7 +231,6 @@ void *timer_proc(void *arg)
             proc_tick = 0;
 
             pcb *pcb_berri = pcb_sortu(pcb_kont);
-            pcb_kont++;
             ilaran_gehitu(pcb_ilara_0,pcb_berri, NEW);
             printf("-(PROC) PCB berria: id = %d, exek_denb = %d\n", pcb_berri->info->id, pcb_berri->info->exek_denb);  
         }

@@ -12,7 +12,7 @@
 #define RR_MA_DIN 4 // Maila Anitz, DINAMIKOA (degradazioa)
 
 
-#define QUANTUM 16
+#define QUANTUM 5
 
 /* ------------------METODOAK------------------ */
 /* HARIAK */
