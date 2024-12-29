@@ -73,15 +73,15 @@ void ilaretan_gehitu(int hari_id)
     {
         case 0:
             ilaran_gehitu(pcb_ilara_0, nire_pcb, READY);
-            printf("--(DISP) %d Haria: PCB %d OUT %d ilara 0-ra\n", nire_pcb->info->id);
+            printf("--(\033[44mDISP\033[0m) %d Haria: PCB %d \033[41mOUT\033[0m %d ilara 0-ra\n", nire_pcb->info->id);
             break;
         case 1:
             ilaran_gehitu(pcb_ilara_1, nire_pcb, READY);
-            printf("--(DISP) %d Haria: PCB %d OUT %d ilara 1-ra\n", nire_pcb->info->id);
+            printf("--(\033[44mDISP\033[0m) %d Haria: PCB %d \033[41mOUT\033[0m %d ilara 1-ra\n", nire_pcb->info->id);
             break;
         default: // prio >= 2 --> pcb_ilara_2
             ilaran_gehitu(pcb_ilara_2, nire_pcb, READY);
-            printf("--(DISP) %d Haria: PCB %d OUT %d ilara 2-ra\n", nire_pcb->info->id);
+            printf("--(\033[44mDISP\033[0m) %d Haria: PCB %d \033[41mOUT\033[0m %d ilara 2-ra\n", nire_pcb->info->id);
             break;
     }
 
@@ -192,11 +192,11 @@ void ilarak_pantailaratu()
 /* TIMER_PROC */
 void timer_proc_amaitu()
 {
-    printf("\n\n-(PROC) Amaitu gabeko prozesuak:\n");
-    ilarak_pantailaratu();
-
-    printf("\n-(PROC) Amaitutako prozesuak:\n");
+    printf("\n\033[33mAmaitutako prozesuak:\033[0m\n");
     ilara_pantailaratu(pcb_ilara_finished);
+
+    printf("\n\033[33mAmaitu gabeko prozesuak:\033[0m\n");
+    ilarak_pantailaratu();
 
     return;
 }
@@ -232,7 +232,7 @@ void *timer_proc(void *arg)
 
             pcb *pcb_berri = pcb_sortu(pcb_kont);
             ilaran_gehitu(pcb_ilara_0,pcb_berri, NEW);
-            printf("-(PROC) PCB berria: id = %d, exek_denb = %d\n", pcb_berri->info->id, pcb_berri->info->exek_denb);  
+            printf("-(\033[43mPROC\033[0m) PCB berria: id = %d, exek_denb = %d\n", pcb_berri->info->id, pcb_berri->info->exek_denb);  
         }
         pthread_cond_signal(&cond1);
         pthread_cond_wait(&cond2,&mutex1);

@@ -66,7 +66,6 @@ void *erloju(void *arg)
     uint erloju_tick = 0;
     abisu = 0;
 
-
     while(1)
     {
         erloju_tick++;
@@ -78,9 +77,9 @@ void *erloju(void *arg)
             erloju_tick = 0;
 
             abisu++;
-            printf("\n(MAIN) Abisu %d \n",abisu);  
+            printf("\n\033[35m(MAIN) Abisu %d \033[0m\n",abisu);  
             if(abisu == TTL){ //KERNELA AMAITU
-                printf("AMAIERA\n");
+                printf("\n\033[45mAMAIERA\033[0m");
                 pthread_mutex_unlock(&mutex1);
                 return NULL;
             }
@@ -103,7 +102,7 @@ int main(int argc, char *argv[])
     if(argc < 9) {printf("\n%s <clock_maizt> <sched_maizt> <proc_maizt> <cpu_kop> <core_kop> <hari_kop> <sched_politika> <proc_exek_denb_max>\n", argv[0]); return 1;}
 
     /* KERNELA HASIERATU */
-    printf("\nSistema martxan jartzen...\n");
+    printf("\n\033[35mSistema martxan jartzen...\033[0m\n");
 
     pthread_mutex_init(&mutex1,NULL);
     pthread_cond_init(&cond1,NULL);
@@ -123,7 +122,7 @@ int main(int argc, char *argv[])
     ilarak_hasieratu();
 
 
-    printf(" CLOCK: %d \n SCHED: %d \n PROC: %d \n TOTAL_HARI_KOP %d \n POLITIKA %d \n QUANTUM %d \n", atoi(argv[1]),atoi(argv[2]),atoi(argv[3]),makina->total_hari_kop,politika,QUANTUM);
+    //printf(" CLOCK: %d \n SCHED: %d \n PROC: %d \n TOTAL_HARI_KOP %d \n POLITIKA %d \n\n QUANTUM %d \n", atoi(argv[1]),atoi(argv[2]),atoi(argv[3]),makina->total_hari_kop,politika,QUANTUM);
 
     pthread_create(&p1,NULL,erloju,(void*)&argClock);
     usleep(1000); //TODO beste modu bat bilatu
@@ -139,7 +138,7 @@ int main(int argc, char *argv[])
     /* ----------------------------------------------- */
 
     /* KERNELA AMAITU */
-    printf("\n\nSistema itzaltzen...\n");
+    printf("\n\n\033[35mSistema itzaltzen...\033[0m\n");
     makina_bukatu();
     ilarak_amaitu();
 
@@ -147,7 +146,7 @@ int main(int argc, char *argv[])
     pthread_cond_destroy(&cond1);
     pthread_cond_destroy(&cond2);
 
-    printf("Sistema behar bezala amaitu da\n\n");
+    printf("\033[35mSistema behar bezala amaitu da\033[0m\n\n");
 
     return 0;
 }

@@ -86,7 +86,7 @@ int haria_esleitu()
                 makina->harimap[i] = 1;
                 nire_pcb->info->egoera = RUNNING;
 
-                printf("--(DISP) %d Haria: PCB %d IN %d\n", i, nire_pcb->info->id, nire_pcb->info->exek_denb);
+                printf("--(\033[44mDISP\033[0m) %d Haria: PCB %d \033[42mIN\033[0m %d\n", i, nire_pcb->info->id, nire_pcb->info->exek_denb);
                 return 0;
             } else{
                 //printf("--(DISP) Warning: ez dago PCB-rik ilaran\n");
@@ -99,7 +99,7 @@ int haria_esleitu()
 
     if(i == makina->total_hari_kop)
     {
-        printf("--(DISP) Warning: ez dago haririk libre\n");
+        printf("--(\033[44mDISP\033[0m) \033[31mWarning:\033[0m ez dago haririk libre\n");
         return 2; 
     }
 
@@ -115,7 +115,7 @@ void haritik_atera(int hari_id, pcb_ilara *ilara, int egoera)
         ilaretan_gehitu(hari_id);
     }
 
-    if(politika < RR) printf("--(DISP) %d Haria: PCB %d OUT %d\n", hari_id, makina->hariak[hari_id].uneko_pcb->info->id, makina->hariak[hari_id].uneko_pcb->info->exek_denb);
+    if(politika < RR) printf("--(\033[44mDISP\033[0m) %d Haria: PCB %d \033[41mOUT\033[0m %d\n", hari_id, makina->hariak[hari_id].uneko_pcb->info->id, makina->hariak[hari_id].uneko_pcb->info->exek_denb);
 
     makina->harimap[hari_id] = 0;
     makina->hariak[hari_id].uneko_pcb = NULL;
@@ -202,7 +202,7 @@ void *timer_sched(void *arg)
     {
         if(abisu >= TTL)
         {
-            printf("\n\n--(SCHED) Harietan geratu diren prozesuak:\n");
+            printf("\n\033[34mHarietan geratu diren prozesuak:\033[0m\n");
             hariak_pantailaratu();
 
             pthread_mutex_unlock(&mutex1);
