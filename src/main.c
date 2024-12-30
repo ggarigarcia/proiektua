@@ -122,7 +122,7 @@ int main(int argc, char *argv[])
     uint hari_kop = atoi(argv[6]);
     politika = atoi(argv[7]);
 
-    makina_hasieratu(cpu_kop,core_kop,hari_kop); //TODO INIT physical_memory
+    makina_hasieratu(cpu_kop,core_kop,hari_kop);
     ilarak_hasieratu();
 
     //printf(" CLOCK: %d \n SCHED: %d \n PROC: %d \n TOTAL_HARI_KOP %d \n POLITIKA %d \n\n QUANTUM %d \n", atoi(argv[1]),atoi(argv[2]),atoi(argv[3]),makina->total_hari_kop,politika,QUANTUM);

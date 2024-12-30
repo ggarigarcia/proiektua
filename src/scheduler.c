@@ -78,7 +78,8 @@ int haria_esleitu()
     {
         if(makina->harimap[i] == 0) //aurkitua
         {
-            nire_pcb = ilaretatik_atera(); //TODO ilara ordenatu nunbait, sartu ondoren/ atera baino lehen
+            ilara_ordenatu(pcb_ilara_0);
+            nire_pcb = ilaretatik_atera();
 
             if(nire_pcb != NULL)
             {
@@ -111,7 +112,7 @@ void haritik_atera(int hari_id, pcb_ilara *ilara, int egoera)
     if(ilara == pcb_ilara_finished)
     {
         ilaran_gehitu(ilara, makina->hariak[hari_id].uneko_pcb, FINISHED);
-        printf("--(\033[34mDISP\033[0m) %d Haria: PCB %d \033[41mAMAIU DA\033[0m \n", hari_id, makina->hariak[hari_id].uneko_pcb->info->id);
+        printf("--(\033[34mDISP\033[0m) %d Haria: PCB %d \033[41mAMAITU DA\033[0m \n", hari_id, makina->hariak[hari_id].uneko_pcb->info->id);
 
     } else {
         ilaretan_gehitu(hari_id);

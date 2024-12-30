@@ -74,16 +74,16 @@ void ilaretan_gehitu(int hari_id)
     switch (*prio)
     {
         case 0:
-            ilaran_gehitu(pcb_ilara_0, nire_pcb, READY);
-            printf("--(\033[34mDISP\033[0m) %d Haria: PCB %d \033[41mOUT\033[0m ilara 0-ra\n", nire_pcb->info->id);
+            ilaran_gehitu(pcb_ilara_0, nire_pcb, READY); 
+            printf("--(\033[34mDISP\033[0m) %d Haria: PCB %d \033[41mOUT\033[0m ilara 0-ra\n", hari_id, nire_pcb->info->id);
             break;
         case 1:
             ilaran_gehitu(pcb_ilara_1, nire_pcb, READY);
-            printf("--(\033[34mDISP\033[0m) %d Haria: PCB %d \033[41mOUT\033[0m ilara 1-ra\n", nire_pcb->info->id);
+            printf("--(\033[34mDISP\033[0m) %d Haria: PCB %d \033[41mOUT\033[0m ilara 1-ra\n", hari_id, nire_pcb->info->id);
             break;
         default: // prio >= 2 --> pcb_ilara_2
             ilaran_gehitu(pcb_ilara_2, nire_pcb, READY);
-            printf("--(\033[34mDISP\033[0m) %d Haria: PCB %d \033[41mOUT\033[0m ilara 2-ra\n", nire_pcb->info->id);
+            printf("--(\033[34mDISP\033[0m) %d Haria: PCB %d \033[41mOUT\033[0m ilara 2-ra\n", hari_id, nire_pcb->info->id);
             break;
     }
 

@@ -26,7 +26,7 @@ void round_robin(int hari_id);
 
 /* SCHEDULER */
 int shortest_job_first(pcb_ilara *ilara);
-void ilara_ordenatu(pcb_ilara *ilara); 
+void ilara_ordenatu(pcb_ilara *ilara); //ilara anitzek ez dute SJF erabiltzen asike bakarrik ilara_0 ordenatu beharko dugu
 
 /* TIMER_SCHED */
 void *timer_sched(void *arg);

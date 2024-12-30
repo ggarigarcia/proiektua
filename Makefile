@@ -18,7 +18,7 @@ $(OBJDIR)/%.o: src/%.c $(HDR) #.o bakoitza bere .c-a (edo .h) aldatzean birkonpi
 
 # HAU ALDATU NAHI DEN BALIOAK SARTUZ
 run: $(BIN)
-	./$(BIN) 10 1 1 1 1 1 4 25
+	./$(BIN) 10 1 1 2 2 2 2 25
 
 debug: $(BIN)
 	gdb ./$(BIN)
