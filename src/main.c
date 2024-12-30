@@ -65,7 +65,7 @@ void makina_bukatu()
 void *erloju(void *arg)
 {    
     pthread_mutex_lock(&mutex1);
-    timerArgs* t_args = (timerArgs*) arg;
+    timerArgs* t_args = (timerArgs*) arg; 
     uint maiztasuna = t_args->maiztasuna;
     uint erloju_tick = 0;
     abisu = 0;
@@ -73,6 +73,7 @@ void *erloju(void *arg)
     while(1)
     {
         erloju_tick++;
+        usleep(1e6/maiztasuna);
         if(abisu > 0) hariak_eguneratu();
 
         if (erloju_tick == maiztasuna)

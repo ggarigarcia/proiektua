@@ -27,12 +27,17 @@ typedef struct{
     //pc //program counter
 } hari;
 
+#define HITZ_KOP 10
+#define HITZ_LUZERA 10
 
 typedef struct{
+    
+} mem_block;
+typedef struct memoria_fisikoa{
     //24 biteko helbide busa
     //32 biteko datu-busa
-} physical_memory;
-
+    
+} phys_mem;
 
 typedef struct{
     uint total_hari_kop; //cpu_kop * core_kop * hari_kop

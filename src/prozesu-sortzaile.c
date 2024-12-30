@@ -37,6 +37,12 @@ pcb *pcb_sortu()
     pcb_berri->info->exek_denb = (rand() % proc_m_max) + 1;
     pcb_berri->info->quantum = QUANTUM;
 
+    //pcb-aren orri taula sortu memoria FISIKOAN (kernel zatian)
+    pcb_berri->info->mm = malloc(sizeof(mm));
+    pcb_berri->info->mm->pgb = NULL; //digamos memoria fisikoa array bat dala malloc bidez sortua
+    pcb_berri->info->mm->code = NULL;
+    pcb_berri->info->mm->data = NULL;
+
     pcb_berri->hurrengoa = NULL;
 
     return pcb_berri;
@@ -136,7 +142,8 @@ int ilara_ezabatu(pcb_ilara **ilara)
     pcb *next;
     while (current != NULL) {
         next = (pcb *) current->hurrengoa;
-        free(current->info);
+        free(current->info->mm);
+        free(current->info); 
         free(current);
         current = next;
     }
@@ -204,10 +211,9 @@ void timer_proc_amaitu()
 }
 
 void loader(){
+    
     pcb *pcb_berri = pcb_sortu(pcb_kont); //TODO datu egitura berriak hasieratu
-    //(PHYSICAL MEMORY-n)
-        //orri taula sortu, helbidea = PGB
-        //fitxategiti batetik kodea eta datuak kargatu eta memorian kopiatu
+    //TODO datuak eta kodea fitxategi batetik irakurri eta PCB-an esleitu
     ilaran_gehitu(pcb_ilara_0,pcb_berri, NEW);
     printf("-(\033[33mPROC\033[0m) PCB berria: id = %d, exek_denb = %d\n", pcb_berri->info->id, pcb_berri->info->exek_denb);  
 

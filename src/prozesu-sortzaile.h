@@ -7,23 +7,27 @@
 #define READY 1
 #define RUNNING 2
 #define FINISHED 3
+
+typedef struct memory_management{
+    int *pgb; //PCB-aren orri taularen posizioa memoria FISIKOAN
+    int *code; //code zatiaren helbide BIRTUALA
+    int *data; //data zatiaren helbide BIRTUALA
+} mm;
 typedef struct{
     int id;
     int egoera;
     int prioritatea;
     int exek_denb;
     int quantum;
+    mm *mm;
 } pcb_info;
-typedef struct pcb{
+
+typedef struct{
     pcb_info *info;
     struct pcb *hurrengoa;
-    //pgb //orri taularen helbide FISIKOA
-    //code //kodearen segmentuaren helbide BIRTUALA
-    //data //datuen segmentuaren helbide BIRTUALA
 } pcb;
 
 /* ILARA */
-#define TOTAL_PCB_ILARA 2 // 0..n, while guztietan -1 egin, finished_ilara ez atzitzeko
 typedef struct{
     pcb *head;
     pcb *tail;
