@@ -61,27 +61,29 @@ void ilaran_gehitu(pcb_ilara *ilara, pcb *pcb, int egoera)
 void ilaretan_gehitu(int hari_id)
 {
     pcb *nire_pcb = makina->hariak[hari_id].uneko_pcb; 
-    int *prio = &(nire_pcb->info->prioritatea); 
+    int *prio = &(nire_pcb->info->prioritatea);
+    int *quantum = &(makina->hariak[hari_id].uneko_pcb->info->quantum);
 
-    //pixkanakako degradazioa, quantuma gehituz
-    if(politika == RR_MA_DIN){
-        (*prio)++;
-        makina->hariak[hari_id].uneko_pcb->info->quantum++;
-    }
+    *quantum = QUANTUM; //quantuma eguneratu
+
+    if(politika == RR_MA_DIN){ //pixkanakako degradazioa, quantuma handituz
+        *prio++; //prio eguneratu
+        *quantum += *prio; 
+    } 
 
     switch (*prio)
     {
         case 0:
             ilaran_gehitu(pcb_ilara_0, nire_pcb, READY);
-            printf("--(\033[44mDISP\033[0m) %d Haria: PCB %d \033[41mOUT\033[0m %d ilara 0-ra\n", nire_pcb->info->id);
+            printf("--(\033[34mDISP\033[0m) %d Haria: PCB %d \033[41mOUT\033[0m ilara 0-ra\n", nire_pcb->info->id);
             break;
         case 1:
             ilaran_gehitu(pcb_ilara_1, nire_pcb, READY);
-            printf("--(\033[44mDISP\033[0m) %d Haria: PCB %d \033[41mOUT\033[0m %d ilara 1-ra\n", nire_pcb->info->id);
+            printf("--(\033[34mDISP\033[0m) %d Haria: PCB %d \033[41mOUT\033[0m ilara 1-ra\n", nire_pcb->info->id);
             break;
         default: // prio >= 2 --> pcb_ilara_2
             ilaran_gehitu(pcb_ilara_2, nire_pcb, READY);
-            printf("--(\033[44mDISP\033[0m) %d Haria: PCB %d \033[41mOUT\033[0m %d ilara 2-ra\n", nire_pcb->info->id);
+            printf("--(\033[34mDISP\033[0m) %d Haria: PCB %d \033[41mOUT\033[0m ilara 2-ra\n", nire_pcb->info->id);
             break;
     }
 
@@ -207,7 +209,7 @@ void loader(){
         //orri taula sortu, helbidea = PGB
         //fitxategiti batetik kodea eta datuak kargatu eta memorian kopiatu
     ilaran_gehitu(pcb_ilara_0,pcb_berri, NEW);
-    printf("-(\033[43mPROC\033[0m) PCB berria: id = %d, exek_denb = %d\n", pcb_berri->info->id, pcb_berri->info->exek_denb);  
+    printf("-(\033[33mPROC\033[0m) PCB berria: id = %d, exek_denb = %d\n", pcb_berri->info->id, pcb_berri->info->exek_denb);  
 
     return;
 }

@@ -86,7 +86,7 @@ int haria_esleitu()
                 makina->harimap[i] = 1;
                 nire_pcb->info->egoera = RUNNING;
 
-                printf("--(\033[44mDISP\033[0m) %d Haria: PCB %d \033[42mIN\033[0m %d\n", i, nire_pcb->info->id, nire_pcb->info->exek_denb);
+                printf("--(\033[34mDISP\033[0m) %d Haria: PCB %d \033[42mIN\033[0m %d\n", i, nire_pcb->info->id, nire_pcb->info->exek_denb);
                 return 0;
             } else{
                 //printf("--(DISP) Warning: ez dago PCB-rik ilaran\n");
@@ -99,7 +99,7 @@ int haria_esleitu()
 
     if(i == makina->total_hari_kop)
     {
-        printf("--(\033[44mDISP\033[0m) \033[31mWarning:\033[0m ez dago haririk libre\n");
+        printf("--(\033[34mDISP\033[0m) \033[31mWarning:\033[0m ez dago haririk libre\n");
         return 2; 
     }
 
@@ -111,12 +111,13 @@ void haritik_atera(int hari_id, pcb_ilara *ilara, int egoera)
     if(ilara == pcb_ilara_finished)
     {
         ilaran_gehitu(ilara, makina->hariak[hari_id].uneko_pcb, FINISHED);
+        printf("--(\033[34mDISP\033[0m) %d Haria: PCB %d \033[41mAMAIU DA\033[0m \n", hari_id, makina->hariak[hari_id].uneko_pcb->info->id);
+
     } else {
         ilaretan_gehitu(hari_id);
     }
 
-    if(politika < RR) printf("--(\033[44mDISP\033[0m) %d Haria: PCB %d \033[41mOUT\033[0m %d\n", hari_id, makina->hariak[hari_id].uneko_pcb->info->id, makina->hariak[hari_id].uneko_pcb->info->exek_denb);
-
+    //haria garbitu
     makina->harimap[hari_id] = 0;
     makina->hariak[hari_id].uneko_pcb = NULL;
 
@@ -130,9 +131,7 @@ void round_robin(int hari_id)
     (*uneko_quantum)--;
 
     if(*uneko_quantum == 0)
-    {
-        *uneko_quantum = QUANTUM; //quantum-a reiniziatu
-        
+    {        
         if(makina->hariak[hari_id].uneko_pcb->info->exek_denb != 0) // 0 bada beste metodoak kanporatuko du
         {
             haritik_atera(hari_id, NULL, READY);
@@ -180,7 +179,6 @@ void ilara_ordenatu(pcb_ilara *ilara)
     switch(politika)
     {
         case SJF:
-        //case RR_SJF: 
             shortest_job_first(ilara);
             break;
         default: //FCFS, RR
