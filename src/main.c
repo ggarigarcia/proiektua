@@ -15,7 +15,7 @@ pcb_ilara *pcb_ilara_0, *pcb_ilara_1, *pcb_ilara_2, *pcb_ilara_finished;
 pthread_mutex_t mutex1;
 pthread_cond_t cond1, cond2;
 
-uint done, abisu; // abisu <-> TTL
+uint done, abisu, ttl; // abisu <-> ttl
 
 /* ------------------METODOAK------------------ */
 /* MAKINA */
@@ -83,7 +83,7 @@ void *erloju(void *arg)
 
             abisu++;
             printf("\n\033[35m(MAIN) Abisu %d \033[0m\n",abisu);  
-            if(abisu == TTL){ //KERNELA AMAITU
+            if(abisu == ttl){ //KERNELA AMAITU
                 printf("\n\033[45mAMAIERA\033[0m");
                 pthread_mutex_unlock(&mutex1);
                 return NULL;
@@ -104,7 +104,7 @@ void *erloju(void *arg)
 int main(int argc, char *argv[])
 {
     /* argumentu egiaztapena */
-    if(argc < 9) {printf("\n%s <clock_maizt> <sched_maizt> <proc_maizt> <cpu_kop> <core_kop> <hari_kop> <sched_politika> <proc_exek_denb_max>\n", argv[0]); return 1;}
+    if(argc < 9) {printf("\033[31mERABILERA:\033[0m\n%s <clock_maizt> <sched_maizt> <proc_maizt> <cpu_kop> <core_kop> <hari_kop> <sched_politika> <ttl>\n\n", argv[0]); return 1;}
 
     /* KERNELA HASIERATU */
     printf("\n\033[35mSistema martxan jartzen...\033[0m\n");
@@ -122,6 +122,7 @@ int main(int argc, char *argv[])
     uint core_kop = atoi(argv[5]);
     uint hari_kop = atoi(argv[6]);
     politika = atoi(argv[7]);
+    ttl = atoi(argv[8]);
 
     makina_hasieratu(cpu_kop,core_kop,hari_kop);
     ilarak_hasieratu();

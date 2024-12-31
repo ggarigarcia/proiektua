@@ -10,7 +10,7 @@ extern pthread_mutex_t mutex1;
 extern pthread_cond_t cond1, cond2;
 
 extern machine *makina;
-extern uint done, abisu;
+extern uint done, abisu, ttl;
 
 extern int politika;
 extern pcb_ilara *pcb_ilara_0, *pcb_ilara_1, *pcb_ilara_2, *pcb_ilara_finished;
@@ -32,13 +32,19 @@ pcb *pcb_sortu()
     pcb_berri->info->id = pcb_kont;
     pcb_kont++;
     pcb_berri->info->egoera = NEW;
-    pcb_berri->info->prioritatea = 0;
+    
+    if(politika == RR_MA_EST) //SOILIK ESTATIKOA. DINAMIKOAN DENAK 0-tik HASI
+        pcb_berri->info->prioritatea = (rand() % 2);
+    else
+        pcb_berri->info->prioritatea = 0;
+
     pcb_berri->info->exek_denb = (rand() % proc_m_max) + 1;
     pcb_berri->info->quantum = QUANTUM;
 
     //pcb memory management
     pcb_berri->mm = malloc(sizeof(mm));
     if (pcb_berri->mm == NULL) {free(pcb_berri->info); free(pcb_berri); return NULL;}
+
     //TODO pcb-aren orri taula sortu memoria FISIKOAN (kernel zatian)
     pcb_berri->mm->pgb = NULL;
     //TODO datuak eta kodea fitxategi batetik irakurri eta PCB-an esleitu
@@ -144,7 +150,7 @@ int ilara_ezabatu(pcb_ilara **ilara)
     pcb *next;
     while (current != NULL) {
         next = (pcb *) current->hurrengoa;
-        free(current->info->mm);
+        free(current->mm);
         free(current->info); 
         free(current);
         current = next;
@@ -235,7 +241,7 @@ void *timer_proc(void *arg) //LOADER
     
     while(1)
     {
-        if(abisu >= TTL) //amaitu
+        if(abisu >= ttl) //amaitu
         {
             timer_proc_amaitu();
             pthread_mutex_unlock(&mutex1);

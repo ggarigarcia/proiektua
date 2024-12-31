@@ -10,7 +10,7 @@ extern pthread_mutex_t mutex1;
 extern pthread_cond_t cond1, cond2;
 
 extern machine *makina;
-extern uint done, abisu;
+extern uint done, abisu, ttl;
 
 extern int politika; 
 extern pcb_ilara *pcb_ilara_0, *pcb_ilara_1, *pcb_ilara_2, *pcb_ilara_finished;
@@ -199,7 +199,7 @@ void *timer_sched(void *arg)
     pthread_mutex_lock(&mutex1);
     while(1)
     {
-        if(abisu >= TTL)
+        if(abisu >= ttl)
         {
             printf("\n\033[34mHarietan geratu diren prozesuak:\033[0m\n");
             hariak_pantailaratu();

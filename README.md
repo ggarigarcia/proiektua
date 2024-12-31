@@ -9,14 +9,17 @@ EHU/UPV - Informatika Fakultatea
 Konputagailuen Ingeniaritza - Sistema Eragileak  
 2024/25 ikasturtea  
 
-***
-
 ## Aurkibidea
 
 - [Sarrera](#sarrera)
-- [Lehenengo zatia: sistemaren hari nagusia](#lehenengo-zatia-sistemaren-hari-nagusia)
-- [Bigarrengo zatia: scheduler/dispatcher](#bigarren-zatia-schedulerdispatcher)
-- [Hirugarren zatia: memoria kudeatzailea](#hirugarren-zatia-memoria-kudeatzailea)
+- [Lehenengo zatia](#lehenengo-zatia-sistemaren-hari-nagusia)
+  - [Funtzio eta egiturak](#hari-nagusian-inplementatutako-funtzio-eta-egiturak)
+  - [Prozedura](#prozedura)
+- [Bigarrengo zatia](#bigarren-zatia-schedulerdispatcher)  
+  - [Scheduler](#scheduler)  
+  - [Dispatcher](#dispatcher)  
+  - [Terminaleko jakinarazpenak](#terminaleko-jakinarazpenak)
+- [Hirugarren zatia](#hirugarren-zatia-memoria-kudeatzailea)
 
 ## Sarrera
 
@@ -58,7 +61,7 @@ Timer hari bakoitzak bere maiztasun propioa du (argumentu bidez jasotakoa), eta 
    - ``timer_sched``-ek oraingoz ez du ezer egingo.  
 
 Programa goian definitu dudan bezala exekutatuko bagenu, ez litzateke inoiz bukatuko, hiru hariak 'while(1)' batean sartzen bait dira.  
-Hori ekiditeko, *TTL* izeneko **macro**  bat definitu dut, non abisu kopurua *TTL*-ra iristen denean hariak bukatu egingo dira, sistema benetan itzaliz. *TTL* gure itzaltzeko botoia dela pentsa genezake.  
+Hori ekiditeko, *ttl* aldagaia definitu dut, non abisu kopurua *ttl*-ra iristen denean hariak bukatu egingo dira, sistema benetan itzaliz. *ttl* gure itzaltzeko botoia dela esan genezake.  
 
 ## Bigarren zatia: scheduler/dispatcher
 
@@ -73,20 +76,48 @@ Schedulerrak sistemako ilarak ordenatuko ditu, politika desberdinak erabiliz. Sc
 
 ### Dispatcher
 
-Dispatcherra testuinguru aldaketaz arduratuko da, hau da, PCB-ak harira sartzeaz  eta haritik ateratzeaz (*haria esleitu* eta *haritik atera* metodoak).
-Dispatcherra PCB baten exekuzio-denbora (edo quantuma, RR politika aukeratua izan bada) amaitzean  aktibatuko da.
+Dispatcherra testuinguru aldaketaz arduratuko da, hau da, PCB-ak harira **sartzeaz** eta haritik **ateratzeaz** (*haria esleitu* eta *haritik atera* metodoak).  
 
-Aipatzekoa da politika argumentu bezala pasatzen dela aipatzea. Hona hemen argumentu posible guztiak:
+Dispatcherrak aktibazio desberdinak dauzka **politika** aldagaiaren arabera. Politika aldagaiak **ez** badu Round Robin (**RR**) erabiltzen, dispatcherra soilik PCB-aren exekuzio denbora amaitzean aktibatuko da, PCB amaituen ilarara erantsiz bukatu berri den PCB-a.  
+Aldiz, politika RR bada, uneko PCB-aren **quantuma** zerora iristean aterako da haritik, kasu honetan PCB ilara "arrunt" batera sartzeko.  
+
+PCB-a ilara "arrunt" batera sartu behar denean (ondoren berriz ere exekutatu dadin), politikak adieraziko digu beste behin ere zer egin:
+
+- Ilara bakarrareko politika: *pcb_ilara_0*-ra (defektuzkoa).
+- Ilara anitzeko politika:
+  - Degradaziorik gabe: PCB-a sortzean esleitutako prioritateari dagokion ilara (0, 1 edo 2)
+  - Degradazioarekin: testuinguru aldaketaro prioritatea jaitsiko zaio, quantuma handituz aldi berean. Prioritatea **jaitsi eta gero** gehituko da PCB-a ilarara, ez alderantziz.
+
+Garrantzitsua da politika **argumentu** bezala pasatzen dela aipatzea. Hainbat politika desberdin daude, eta dagokion zenbakia pasa beharko da argumentu bezala politika hori erabiltzeko:
 
 - 0: FCFS
 - 1: SJF
 - 2: RR (FCFS erabiliz)
-- 3: Maila anitzeko RR (FCFS), degradazio gabea
+- 3: Maila anitzeko RR (FCFS), degradaziorik gabe
 - 4: Maila anitzeko RR (FCFS), degradazioarekin (quantuma handituz)
 
-Honez gain, ``erloju`` harian tick bakoitzero makinako hari batean dagoen PCB-ari exekuzio-denbora dekrementatuko zaio (*eguneratu_hariak* metodoa).
+Azaldutako guztia biltzeko, dispatcherraren magia ``erloju`` harian tick bakoitzero exekutatzen den metodoan aurkitzen da:  
 
-- RR kasuan quantuma aztertuko dugu, eta horren baitan dispatcherrari deitu ala ez erabaki.
-- RR erabiltzen **ez** den kasuan PCB-a makinako harian geratuko da, exekuzio-denbora agortzen den arte.
+- *Eguneratu_hariak* metodoak makinako harietan dauden PCB-ei exekuzio-denbora **dekrementatzen** die, benetazko exekuzioa simulatuz. Dispatcherraren bi metodo nagusiak metodo honen barnean aurkitzen dira, PCB-a noiz kanporatu/sartu itxoiten, exekuzio-denbora eta quantuma dekrementatu ahala.
+
+### Terminaleko jakinarazpenak
+
+Bukatzeko, garrantzitsua iruditzen zait terminalean pantailaratzen diren jakinarazpen desberdinak aipatzea.
+
+- Dispatcherra exekutatzen den bakoitzean, kanporatu edo sartu den PCB-aren eta esleituta duen hariaren id-ak pantailaratzen dira.  
+  - PCB-a amaitu bada, "AMAITU DA" pantailaratuko du.
+  - PCB-aren quantum-a amaitu bada, "OUT" pantailaratuko du (dagokion exekuzio-denborarekin), seguruenik ondoren "IN" batez jarraitua (PCB berri bat sartu delako harira).
+- Posiblea da ere hari guztiak okupatuak egotea, eta beraz ``timer_sched``-ek *haria_esleitu* metodoari deitzean "ez dago haririk libre" pantailaratzea.
 
 ## Hirugarren zatia: memoria kudeatzailea
+
+Zati honetan memoria kudeatzaile bat inplementatu behar da, dagokion aldaketekin programan.  
+
+Hasteko, egitura berriak sortu dira:
+
+- Memoria fisikoa
+
+Eta beste egitura batzuk moldatu egin behar izan dira:
+
+- PCB-a
+- Hariak
