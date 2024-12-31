@@ -1,32 +1,56 @@
 # KERNEL BATEN SIMULATZAILEA PROGRAMATZEN
 
-Gari Garcia Egiguren  
-Sistema Eragileak  
-2024-2025 ikasturtea  
+**Egilea:** Gari Garcia Egiguren  
+**Unibertsitatea:** EHU/UPV  
+**Ikasgaia:** Sistema Eragileak (Konputagailuen Ingeniaritza)  
+**Ikasturtea:** 2024/25  
 
-## 1. Sistemaren oinarria
+## Aurkibidea
 
-Zati honetan sistemaren hari nagusia sortu beharko dugu, dagokioen egiturekin:  
+- [Sarrera](#sarrera)
+- [Lehenengo zatia: sistemaren hari nagusia](#lehenengo-zatia-sistemaren-hari-nagusia)
+- [Bigarrengo zatia: scheduler/dispatcher](#bigarren-zatia-schedulerdispatcher)
+- [Hirugarren zatia: memoria kudeatzailea](#hirugarren-zatia-memoria-kudeatzailea)
 
-- Sistemaren erlojua + bi tenporizadore: scheduler eta prozesu sortzaile
-- Machine egitura, **n** hariz osatuta (n = cpu x core x hari_kop)
-- PCB eta PCB_ilara egiturak
+## Sarrera
 
-Programaren funtzionamendua:  
+Proiektu honen helburua sistema eragile baten **kernela** simulatzean da.
 
-1. Erlojuak sistema kontrolatuko duten tick-ak sortuko ditu
-2. Tick maiztasun konkretu batekin abisu bat bidaliko die bi tenporizadoreei. Hauek dagokien maiztasunarekin hurrengoa egingo dute:  
-    - Scheduler: oraingoz ezer
-    - Prozesu-sortzaile: PCB berri bat sortu eta ilarara gehitu
+Sistema eragile baten **kernela** oinarrizko baliabideak kudeatzen dituen softwarea da. Software honek **memoria**, **prozesuak** eta **gailuak** kontrolatzen ditu, eta aplikazioen eta hardwarearen arteko **komunikazioa** ere ahalbidetzen du. Kernel-ak sistema eragilearen **muina** osatzen du, eta aplikazioek edo erabiltzaileek kernelaren bidez interakzionatzen dute sistema eragilearekin.
 
-## 2. Planifikatzailea (Scheduler/Dispatcher)
+## Lehenengo zatia: sistemaren hari nagusia
 
-Zati honetan Schedulerra eta Dispatcherra sortuko dira:  
+Proiektuaren lehenengo zatian sistemaren hari nagusia definitu eta sortzen da.  
+Hari nagusia hurrengo funtzio eta egiturek osatzen dute:
 
-- Sortutako PCB berriak makinako harietan exekutatuko dira, argumentuz pasatako politika erabiliz:  
-  - 0: First Come First Served
-  - 1: Shortest Job First
-  - 2: Round-Robin + Shortest Job First
-- Amaitutako prozesuak ilara desberdin batera gehituko dira
+### Funtzioak
 
-## 3. Memoriaren kudeatzailea
+- Sistemaren erlojua (erloju): maiztasuna finkatzen du
+- Tenporizadoreak: erlojuarekin komunikatzen dira
+  - Scheduler/dispatcher (timer_sched)
+  - Prozesu sortzailea (timer_proc)
+
+``erloju``, ``timer_sched`` eta ``timer_proc`` funtzioak *pthread.h* liburutegiaren bidez sortutako **hariak** dira. Hari hauek beraien artean **komunikatu** eta **sinkronizatzeko**, liburutegi berdinean dauden **baldintzazko mutexak** erabiliko ditugu.
+
+### Egiturak
+
+- Makina (machine)
+  - Hariak
+- PCB (Process Control Block)
+  - PCB ilara
+
+### Prozedura
+
+1. Lehenik eta behin, ``makina`` egitura hasieratuko da, argumentu bidez jasotako cpu, core eta hari kantitatearekin. Nire kasuan, ``total_hari_kop`` aldagaiak aurreko hiru argumentuen biderketa gordetzen du. Hari kantitatea, beraz, ``total_hari_kop`` aldagaiak definitzen du, eta horren baitan sortuko dira hariak eta harien bitmap-a (harimap), *malloc* bidez.
+
+2. ``erloju`` hariak *tick*-ak sortuko ditu uneoro. Tick kopurua argumentu bidez jasotako maiztasunaren berdina denean, ``erloju``-k **abisu** bat pantailaratuko du eta mutex-a **askatuko** du.  
+
+3. Askatutako mutexa ``timer_proc`` edo ``timer_sched`` hariak hartuko du. Hari bakoitzak bere maiztasun propioa du (argumentu bidez jasotakoa), eta abisu kopurua maiztasun horretara iristean dagokiona exekutatuko du:
+   - ``timer_proc``-ek PCB berri bat sortuko du, eta PCB ilarara gehituko du.
+   - ``timer_sched``-ek oraingoz ez du ezer egingo.
+
+
+
+## Bigarren zatia: scheduler/dispatcher
+
+## Hirugarren zatia: memoria kudeatzailea

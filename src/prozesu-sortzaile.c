@@ -21,14 +21,13 @@ uint pcb_kont, proc_m_max; //PCB-en id-ak, maiztasun maximoa
 /* PCB */
 pcb *pcb_sortu()
 {
+    //pcb como tal
     pcb *pcb_berri = malloc(sizeof(pcb));
     if (pcb_berri == NULL) return NULL;
 
+    //pcb info
     pcb_berri->info = malloc(sizeof(pcb_info));
-    if (pcb_berri->info == NULL) {
-        free(pcb_berri);
-        return NULL;
-    }
+    if (pcb_berri->info == NULL) {free(pcb_berri); return NULL;}
 
     pcb_berri->info->id = pcb_kont;
     pcb_kont++;
@@ -37,11 +36,14 @@ pcb *pcb_sortu()
     pcb_berri->info->exek_denb = (rand() % proc_m_max) + 1;
     pcb_berri->info->quantum = QUANTUM;
 
-    //pcb-aren orri taula sortu memoria FISIKOAN (kernel zatian)
-    pcb_berri->info->mm = malloc(sizeof(mm));
-    pcb_berri->info->mm->pgb = NULL; //digamos memoria fisikoa array bat dala malloc bidez sortua
-    pcb_berri->info->mm->code = NULL;
-    pcb_berri->info->mm->data = NULL;
+    //pcb memory management
+    pcb_berri->mm = malloc(sizeof(mm));
+    if (pcb_berri->mm == NULL) {free(pcb_berri->info); free(pcb_berri); return NULL;}
+    //TODO pcb-aren orri taula sortu memoria FISIKOAN (kernel zatian)
+    pcb_berri->mm->pgb = NULL;
+    //TODO datuak eta kodea fitxategi batetik irakurri eta PCB-an esleitu
+    pcb_berri->mm->code = NULL;
+    pcb_berri->mm->data = NULL;
 
     pcb_berri->hurrengoa = NULL;
 
@@ -212,8 +214,7 @@ void timer_proc_amaitu()
 
 void loader(){
     
-    pcb *pcb_berri = pcb_sortu(pcb_kont); //TODO datu egitura berriak hasieratu
-    //TODO datuak eta kodea fitxategi batetik irakurri eta PCB-an esleitu
+    pcb *pcb_berri = pcb_sortu(pcb_kont);
     ilaran_gehitu(pcb_ilara_0,pcb_berri, NEW);
     printf("-(\033[33mPROC\033[0m) PCB berria: id = %d, exek_denb = %d\n", pcb_berri->info->id, pcb_berri->info->exek_denb);  
 

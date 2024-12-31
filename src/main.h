@@ -10,40 +10,44 @@
 
 typedef unsigned int uint; // 0-tik 4294967295-erako balioak
 
+
+typedef struct{
+    //tlb
+} mmu;
+
+
+typedef struct{
+    uint id;
+    pcb *uneko_pcb;
+
+    mmu mmu; // @logiko -> @fisiko
+    int *ptbr; // uneko_pcb->mm->pgb
+    //ir // uneko @logiko
+    //pc //program counter
+} hari;
+
+/* MEMORIA FISIKOA */
+#define MEMORIA_TAM (1 << 24) // 16MB
+#define HITZ_TAM 4 // 4B 
+#define ORRI_TAM (1 << 12) // 4KB
+
+typedef struct memoria_fisikoa{
+
+} memoria;
+
+/* MAKINA */
+typedef struct{
+    uint total_hari_kop; //cpu_kop * core_kop * hari_kop
+    uint *harimap; //harien bitmap
+    hari *hariak; 
+    //TODO memoria fisikoa
+} machine;
+
 /* TIMER */
 typedef struct{
     uint maiztasuna;
     uint arg1;
 } timerArgs;
-
-/* MACHINE */
-typedef struct{
-    uint id;
-    pcb *uneko_pcb;
-    //mmu
-    //tlb
-    //ptbr //pable table base register
-    //ir //instruction register
-    //pc //program counter
-} hari;
-
-#define HITZ_KOP 10
-#define HITZ_LUZERA 10
-
-typedef struct{
-    
-} mem_block;
-typedef struct memoria_fisikoa{
-    //24 biteko helbide busa
-    //32 biteko datu-busa
-    
-} phys_mem;
-
-typedef struct{
-    uint total_hari_kop; //cpu_kop * core_kop * hari_kop
-    uint *harimap; //harien bitmap
-    hari *hariak; 
-} machine;
 
 /* ------------------METODOAK------------------ */
 /* MAKINA */

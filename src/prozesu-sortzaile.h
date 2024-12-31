@@ -9,7 +9,7 @@
 #define FINISHED 3
 
 typedef struct memory_management{
-    int *pgb; //PCB-aren orri taularen posizioa memoria FISIKOAN
+    int *pgb; //PCB-aren orri taua MEMORIA FISIKOAN
     int *code; //code zatiaren helbide BIRTUALA
     int *data; //data zatiaren helbide BIRTUALA
 } mm;
@@ -19,11 +19,11 @@ typedef struct{
     int prioritatea;
     int exek_denb;
     int quantum;
-    mm *mm;
 } pcb_info;
 
 typedef struct{
     pcb_info *info;
+    mm *mm;
     struct pcb *hurrengoa;
 } pcb;
 
