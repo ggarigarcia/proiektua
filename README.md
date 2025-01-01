@@ -13,8 +13,9 @@ Konputagailuen Ingeniaritza - Sistema Eragileak
 
 - [Sarrera](#sarrera)
 - [Lehenengo zatia](#lehenengo-zatia-sistemaren-hari-nagusia)
-  - [Funtzio eta egiturak](#hari-nagusian-inplementatutako-funtzio-eta-egiturak)
-  - [Prozedura](#prozedura)
+  - [Funtzioak](#hari-nagusian-inplementatutako-funtzioak)
+  - [Egiturak](#hari-nagusian-inplementatutako-egiturak)
+  - [Prozedura orokorra](#prozedura-orokorra)
 - [Bigarrengo zatia](#bigarren-zatia-schedulerdispatcher)  
   - [Scheduler](#scheduler)  
   - [Dispatcher](#dispatcher)  
@@ -29,72 +30,70 @@ Sistema eragile baten **kernela** oinarrizko baliabideak kudeatzen dituen softwa
 
 ## Lehenengo zatia: sistemaren hari nagusia
 
-Proiektuaren lehenengo zatian sistemaren hari nagusia definitu eta sortzen da. Sistemak hainbat osagai izango ditu, hala nola erlojua, tenporizadoreak eta makina.  
+Proiektuaren lehenengo zatian sistemaren hari nagusia definitu eta sortzen da. Sistemak hainbat osagai izango ditu, hala nola erlojua, tenporizadoreak eta makina, denak behar diren bezala sinkronizatuta.  
 
-### Hari nagusian inplementatutako funtzio eta egiturak
+### Hari nagusian inplementatutako funtzioak
 
-#### Funtzioak
-
-- Sistemaren erlojua (erloju): maiztasuna finkatzen du
-- Tenporizadoreak: erlojuarekin komunikatzen dira
+- Sistemaren erlojua (erloju): maiztasuna finkatzen du, abisuak bidaliz
+- Tenporizadoreak: erlojuaren abisuak jaso eta dagokien programa exekutatzen dute  
   - Scheduler/dispatcher (timer_sched)
   - Prozesu sortzailea (timer_proc)
 
-``erloju``, ``timer_sched`` eta ``timer_proc`` funtzioak *pthread.h* liburutegiaren bidez sortutako **hariak** dira. Hari hauek beraien artean **komunikatu** eta **sinkronizatzeko**, liburutegi berdinean dauden **baldintzazko mutexak** erabiliko dira.
+``erloju``, ``timer_sched`` eta ``timer_proc`` funtzioak *pthread.h* liburutegiaren bidez sortutako hari **errealak** dira. Hari hauek beraien artean **komunikatu** eta **sinkronizatzeko**, liburutegi berdinean dauden **baldintzazko mutexak** erabiliko dira.
 
-#### Egiturak
+### Hari nagusian inplementatutako egiturak
 
-- Makina (machine): total_hari_kop + hariak + harimap.
-  - Hariak: id + uneko_pcb
-- PCB (Process Control Block)
-  - PCB ilara: pcb_head + pcb_tail.
+- **Makina (machine):** total_hari_kop + hariak + harimap
+  - **Hariak:** ID + uneko_pcb duten harien bektorea
+  - **Harimap:** hariak libre dauden (0) ala ez (1) adierazten duen bektorea
+- **PCB (Process Control Block):** ID + egoera + prioritatea + exekuzio_denbora + quantuma. Ilara estekatu bateko nodo baten egitura du
+  - **PCB ilara:** pcb_head + pcb_tail. Ilara estekatu bateko hasiera eta bukaera, alegia
 
-### Prozedura
+### Prozedura orokorra
 
-1. Lehenengo, ``makina`` egitura hasieratuko da, argumentu bidez jasotako **cpu**, **core** eta **hari** kantitatearekin. Nire kasuan, ``total_hari_kop`` aldagaiak aurreko hiru argumentuen biderketa gordetzen du. Hari kantitatea, beraz, ``total_hari_kop`` aldagaiak definitzen du, eta horren baitan sortuko dira **hariak** eta harien **bitmap-a** (harimap), *malloc* bidez.
+1. Lehenengo, ``makina`` egitura hasieratuko da, argumentu bidez jasotako **cpu**, **core** eta **hari** kantitatearekin. Nire kasuan, ``total_hari_kop`` aldagaiak aurreko hiru argumentuen biderketa gordetzen du. Hari kantitatea, beraz, ``total_hari_kop`` aldagaiak definitzen du, eta horren baitan sortuko da **hariak** bektorea, eta harien **bitmap-a** (harimap), biak *malloc* bidez.
 
-2. ``erloju`` hariak *tick*-ak sortuko ditu uneoro. Hari honek **maiztasun** bat du (parametroz pasatakoa), eta segundu batean zenbat tick egin behar dituen espezifikatzen du. Tick kopurua maiztasunaren berdina denean, ``erloju``-k mutex-a **askatuko** du, beste hariei "abisu" bat bidaliz.  
+2. ``erloju`` hariak *tick*-ak sortuko ditu uneoro (kontagailu bat eguneratuz). Hari honek **maiztasun** bat du (argumentu bidez jasotakoa), eta segundu batean zenbat tick egin behar dituen espezifikatzen du. Tick kopurua maiztasunaren berdina denean, ``erloju``-k mutex-a **askatuko** du, beste hariei "abisu" bat bidaliz.  
 
-3. Askatutako mutexa ``timer_proc`` edo ``timer_sched`` hariak hartuko du. Hari horrek dagokion kodea exekutatu eta mutexa askatuko du, beste hariak blokeatuz orain mutexa. Modu honetan bi timerrak "eguneratzen" direla ziurtatzen dugu.  
-Timer hari bakoitzak bere maiztasun propioa du (argumentu bidez jasotakoa), eta abisu kopurua maiztasun horretara iristen denean dagokion kodea exekutatuko du:
-   - ``timer_proc``-ek PCB berri bat sortuko du, eta PCB ilaran gehituko du.
-   - ``timer_sched``-ek oraingoz ez du ezer egingo.  
+3. Askatutako mutexa ``timer_proc`` edo ``timer_sched`` hariak hartuko du. Hariak dagokion kodea exekutatu eta mutexa askatuko du, beste hariak blokeatuz ondoren mutexa. Modu honetan bi timerrak "eguneratuta" daudela ziurtatzen dugu.  
+``Timer`` hari bakoitzak bere maiztasun propioa du (argumentu bidez jasotakoa), eta abisu kopurua maiztasun horretara iristen denean dagokion kodea exekutatuko du:
+   - ``timer_proc``-ek PCB berri bat sortuko du, eta PCB ilaran gehituko du
+   - ``timer_sched``-ek oraingoz ez du ezer egingo
 
-Programa goian definitu dudan bezala exekutatuko bagenu, ez litzateke inoiz bukatuko, hiru hariak 'while(1)' batean sartzen bait dira.  
-Hori ekiditeko, *ttl* aldagaia definitu dut, non abisu kopurua *ttl*-ra iristen denean hariak bukatu egingo dira, sistema benetan itzaliz. *ttl* gure itzaltzeko botoia dela esan genezake.  
+Programa goian definitu dudan bezala exekutatuko bagenu, ez litzateke inoiz bukatuko, hiru hariak 'while(1)' batean sartzen bait dira. Hori ekiditeko, *ttl* (*time to leave*) aldagaia definitzen da: abisu kopurua *ttl*-ra iristean sortutako hariak (``erloju`` eta bi ``timer``rak) amaitzen dira, sistema benetan amaitzea lortuz.  
 
 ## Bigarren zatia: scheduler/dispatcher
 
-Proiektuaren bigarren zatian schedulerra eta dispatcherra programatzen dira. Bi osagai hauek exekuzioaren inguruko kontrol handiago bat eskaintzen dute.  
+Proiektuaren bigarren zatian schedulerra eta dispatcherra programatzen dira. Bi osagai hauek exekuzioaren inguruko kontrol handiago bat eskaintzen dute, eta beharrezkoak izango dira PCB-en antolakuntza zuzena bermatzeko.  
 
 ### Scheduler
 
-Schedulerrak sistemako ilarak ordenatuko ditu, politika desberdinak erabiliz. Schedulerra ``timer_sched``-ren maiztasuna betetzean eta PCB bat hari batera sartu baina lehen exekutatuko da (*ilara_ordenatu* metodoa). Hurrengo politikak inplementatu dira:
+Schedulerrak sistemako ilarak ordenatuko ditu, politika desberdinak erabiliz. Schedulerra ``timer_sched``-ren maiztasuna betetzean eta PCB bat hari batera sartu baina lehen exekutatuko da (*ilara_ordenatu* metodoa exekutatuz). Hurrengo bi politikak inplementatu dira metodo honentzat:
 
 - FCFS: ilara arrunt baten funtzionamendua, lehenengoa iristen dena lehenengoa izango da exekutatzen.
-- SJF: ilara exekuzio-denboraren baitan ordenatuko da, txikienetik handienera.
+- SJF: ilara exekuzio-denboraren baitan ordenatzen da, txikienetik handienera.
 
 ### Dispatcher
 
-Dispatcherra testuinguru aldaketaz arduratuko da, hau da, PCB-ak harira **sartzeaz** eta haritik **ateratzeaz** (*haria esleitu* eta *haritik atera* metodoak).  
+Dispatcherra testuinguru aldaketaz arduratuko da, hau da, PCB-ak harira **sartzeaz** eta haritik **ateratzeaz** (*haria esleitu* eta *haritik atera* metodoak exekutatuz, hurrenez hurren).  
 
-Dispatcherrak aktibazio desberdinak dauzka **politika** aldagaiaren arabera. Politika aldagaiak **ez** badu Round Robin (**RR**) erabiltzen, dispatcherra soilik PCB-aren exekuzio denbora amaitzean aktibatuko da, PCB amaituen ilarara erantsiz bukatu berri den PCB-a.  
-Aldiz, politika RR bada, uneko PCB-aren **quantuma** zerora iristean aterako da haritik, kasu honetan PCB ilara "arrunt" batera sartzeko.  
-
-PCB-a ilara "arrunt" batera sartu behar denean (ondoren berriz ere exekutatu dadin), politikak adieraziko digu beste behin ere zer egin:
-
-- Ilara bakarrareko politika: *pcb_ilara_0*-ra (defektuzkoa).
-- Ilara anitzeko politika:
-  - Degradaziorik gabe: PCB-a sortzean esleitutako prioritateari dagokion ilara (0, 1 edo 2)
-  - Degradazioarekin: testuinguru aldaketaro prioritatea jaitsiko zaio, quantuma handituz aldi berean. Prioritatea **jaitsi eta gero** gehituko da PCB-a ilarara, ez alderantziz.
-
-Garrantzitsua da politika **argumentu** bezala pasatzen dela aipatzea. Hainbat politika desberdin daude, eta dagokion zenbakia pasa beharko da argumentu bezala politika hori erabiltzeko:
+Dispatcherrak aktibazio desberdinak dauzka **politika** aldagaiaren arabera. Aldagai hau **argumentu** bezala pasatzen da, eta hainbat aukera desberdin eskaintzen ditu sakatutako zenbakiaren arabera:
 
 - 0: FCFS
 - 1: SJF
 - 2: RR (FCFS erabiliz)
 - 3: Maila anitzeko RR (FCFS), degradaziorik gabe
 - 4: Maila anitzeko RR (FCFS), degradazioarekin (quantuma handituz)
+
+Dispatcherraren aktibaziora bueltatuz, politika aldagaiak **ez** badu Round Robin (**RR**) erabiltzen, dispatcherra soilik PCB-aren exekuzio denbora amaitzean aktibatuko da, PCB amaituen ilarara erantsiz bukatu berri den PCB hori.  
+Aldiz, politikak RR erabiltzen badu, uneko PCB-aren **quantum-a** zerora iristean aterako da haritik, kasu honetan PCB ilara "arrunt" batera sartzeko (ondoren berriz ere exekuta dadin).  
+
+PCB-a ilara "arrunt" batera sartu behar denean, politikak aukeratuko du PCB-a zein ilarara esleituko den:
+
+- Ilara bakarrareko politikan: *pcb_ilara_0*-ra (defektuzkoa).
+- Ilara anitzeko politikan:
+  - Degradaziorik gabe: PCB-a sortzean esleitutako prioritateari dagokion ilara (0, 1 edo 2)
+  - Degradazioarekin: testuinguru aldaketaro prioritatea jaitsiko zaio, quantuma handituz aldiro. Prioritatea **jaitsi eta gero** gehituko da PCB-a ilarara, ez alderantziz.
 
 Azaldutako guztia biltzeko, dispatcherraren magia ``erloju`` harian tick bakoitzero exekutatzen den metodoan aurkitzen da:  
 
@@ -111,7 +110,9 @@ Bukatzeko, garrantzitsua iruditzen zait terminalean pantailaratzen diren jakinar
 
 ## Hirugarren zatia: memoria kudeatzailea
 
-Zati honetan memoria kudeatzaile bat inplementatu behar da, dagokion aldaketekin programan.  
+Zati honetan memoria kudeatzaile bat inplementatu da, dagokion aldaketak burutuz funtzio eta egituretan.  
+
+### Egiturak
 
 Hasteko, egitura berriak sortu dira:
 
@@ -121,3 +122,10 @@ Eta beste egitura batzuk moldatu egin behar izan dira:
 
 - PCB-a
 - Hariak
+
+### Funtzioak
+
+- *Makina_hasieratu*
+  - Memoria fisikoa sortu eta hasieratu
+- *PCB_sortu*
+  - PCB-ak behar dituen egitura berriak sortu eta hasieratu, gehienak memoria fisikoarekin lotura dute
