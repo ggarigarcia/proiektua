@@ -136,7 +136,7 @@ void round_robin(int hari_id)
         if(makina->hariak[hari_id].uneko_pcb->info->exek_denb != 0) // 0 bada beste metodoak kanporatuko du
         {
             haritik_atera(hari_id, NULL, READY);
-            haria_esleitu(NULL);
+            haria_esleitu();
         }
         
     }
