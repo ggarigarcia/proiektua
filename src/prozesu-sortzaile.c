@@ -44,10 +44,9 @@ pcb *pcb_sortu()
     //pcb memory management
     pcb_berri->mm = malloc(sizeof(mm));
     if (pcb_berri->mm == NULL) {free(pcb_berri->info); free(pcb_berri); return NULL;}
-
-    //TODO pcb-aren orri taula sortu memoria FISIKOAN (kernel zatian)
+    
     pcb_berri->mm->pgb = NULL;
-    //TODO datuak eta kodea fitxategi batetik irakurri eta PCB-an esleitu
+    
     pcb_berri->mm->code = NULL;
     pcb_berri->mm->data = NULL;
 
@@ -62,7 +61,7 @@ void ilaran_gehitu(pcb_ilara *ilara, pcb *pcb, int egoera)
         ilara->head = pcb;
         ilara->tail = pcb;
     } else {
-        ilara->tail->hurrengoa = pcb;
+        ilara->tail->hurrengoa = (struct pcb *) pcb;
         ilara->tail = pcb;
     }
 
@@ -121,7 +120,7 @@ pcb *ilaratik_atera(pcb_ilara *ilara)
 
 pcb *ilaretatik_atera() 
 {
-    //if not RR erabili HALARE, 0 ilararekin jokatu (besteak hutsak)
+    //if not RR erabili HALARE, 0 ilararekin jokatu (besteak hutsak egongo dira)
     pcb *nire_pcb = NULL;
 
     nire_pcb = ilaratik_atera(pcb_ilara_0);

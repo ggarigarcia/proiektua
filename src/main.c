@@ -27,7 +27,8 @@ int makina_hasieratu(uint cpu_kop, uint core_kop, uint hari_kop)
     makina->total_hari_kop = cpu_kop * core_kop * hari_kop;
 
     //memoria fisikoa
-        //TODO nola implementatu zerbait al que se le meten cosas en diferentes sitios y diferentes tamaños??
+    //makina->memoria_fisikoa = malloc(64000 * sizeof(int)); //64KB
+    makina->memoria_fisikoa = NULL;
 
     //hariak
     makina->hariak = malloc(makina->total_hari_kop * sizeof(hari));
@@ -41,8 +42,15 @@ int makina_hasieratu(uint cpu_kop, uint core_kop, uint hari_kop)
     for(int i = 0; i < makina->total_hari_kop; i++)
     {
         makina->hariak[i].id = i;
-        makina->hariak[i].uneko_pcb = NULL; 
+        makina->hariak[i].uneko_pcb = NULL;
         makina->harimap[i] = 0;
+        //hirugarren zatia hemendik behera
+        makina->hariak[i].mmu = NULL;
+            //makina->hariak[i].mmu->tlb = NULL;
+        makina->hariak[i].ptbr = NULL;
+        makina->hariak[i].ir = NULL;
+        makina->hariak[i].pc = 0;
+        
     }
 
     return 0;
